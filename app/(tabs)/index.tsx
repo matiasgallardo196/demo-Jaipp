@@ -18,26 +18,52 @@ export default function HomeScreen() {
     setLoading(true);
     setLastError(null);
     try {
-      // Feed público (todas las carpetas) SIEMPRE
-      const { data: rootItems, error: rootError } = await supabase.storage
-        .from("videos")
-        .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
-      if (rootError) throw rootError;
+      // Feed público (todas las carpetas) SIEMPRE usando rol anon vía REST
+      const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL as string;
+      const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY as string;
+      const listUrl = `${supabaseUrl}/storage/v1/object/list/videos`;
+      const headers = {
+        apikey: anonKey,
+        Authorization: `Bearer ${anonKey}`,
+        "Content-Type": "application/json",
+      } as Record<string, string>;
+
+      const rootResp = await fetch(listUrl, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          prefix: "",
+          limit: 1000,
+          offset: 0,
+          delimiter: "/",
+          sortBy: { column: "name", order: "asc" },
+        }),
+      });
+      if (!rootResp.ok) throw new Error(`Root list failed: ${rootResp.status}`);
+      const rootItems = await rootResp.json();
       const folders = (rootItems ?? []).filter((i: any) => !i.id);
 
       const all: PublicVideoItem[] = [];
       for (const folder of folders) {
         const base = folder.name as string;
         const prefix = base.endsWith("/") ? base : `${base}/`;
-        const { data: items, error } = await supabase.storage
-          .from("videos")
-          .list(prefix, {
+
+        const itemsResp = await fetch(listUrl, {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            prefix,
             limit: 1000,
+            offset: 0,
+            delimiter: "/",
             sortBy: { column: "name", order: "asc" },
-          });
-        if (error) continue;
+          }),
+        });
+        if (!itemsResp.ok) continue;
+        const items = await itemsResp.json();
+
         for (const file of items ?? []) {
-          if (!file.id) continue;
+          if (!file.id) continue; // solo archivos
           const filePath = `${prefix}${file.name}`;
           const { data } = supabase.storage
             .from("videos")
