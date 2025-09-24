@@ -1,15 +1,16 @@
+import { AppNavbar } from "@/src/components/AppNavbar";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
-import { useAuth } from "@/src/context/AuthContext";
+// import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
-import { Link } from "expo-router";
+// import { Link } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 type PublicVideoItem = { path: string; url: string };
 
 export default function HomeScreen() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const [videos, setVideos] = useState<PublicVideoItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [lastError, setLastError] = useState<string | null>(null);
@@ -84,38 +85,24 @@ export default function HomeScreen() {
   }, [loadAllVideos]);
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12 }}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <View style={{ flex: 1 }}>
+      <AppNavbar />
+      <View style={{ padding: 16, gap: 12 }}>
         <Text variant="titleLarge">Explorar videos</Text>
-        {user ? (
-          <Link href="/(tabs)/profile" asChild>
-            <Button mode="text">Mi perfil</Button>
-          </Link>
-        ) : (
-          <Link href="/auth/login" asChild>
-            <Button mode="text">Iniciar sesión</Button>
-          </Link>
-        )}
+
+        {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
+
+        <FlatList
+          data={videos}
+          keyExtractor={(item) => item.path}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          renderItem={({ item }) => <VideoPlayer uri={item.url} />}
+          ListEmptyComponent={
+            <Text>{loading ? "Cargando..." : "No hay videos disponibles"}</Text>
+          }
+          contentContainerStyle={{ paddingVertical: 8 }}
+        />
       </View>
-
-      {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
-
-      <FlatList
-        data={videos}
-        keyExtractor={(item) => item.path}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        renderItem={({ item }) => <VideoPlayer uri={item.url} />}
-        ListEmptyComponent={
-          <Text>{loading ? "Cargando..." : "No hay videos disponibles"}</Text>
-        }
-        contentContainerStyle={{ paddingVertical: 8 }}
-      />
     </View>
   );
 }

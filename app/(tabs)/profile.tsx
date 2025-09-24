@@ -1,10 +1,11 @@
+import { AppNavbar } from "@/src/components/AppNavbar";
 import { UploadButton, type PickedVideo } from "@/src/components/UploadButton";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, View } from "react-native";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 type VideoItem = { path: string; url: string };
 
@@ -93,27 +94,21 @@ export default function ProfileScreen() {
   );
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12 }}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+    <View style={{ flex: 1 }}>
+      <AppNavbar />
+      <View style={{ padding: 16, gap: 12 }}>
         <Text variant="titleLarge">Mi perfil</Text>
-        <Button onPress={signOut}>Salir</Button>
+        <UploadButton onPicked={onPicked} disabled={loading} />
+        {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
+        <FlatList
+          data={videos}
+          keyExtractor={(item) => item.path}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          renderItem={({ item }) => <VideoPlayer uri={item.url} />}
+          ListEmptyComponent={<Text>No hay videos</Text>}
+          contentContainerStyle={{ paddingVertical: 8 }}
+        />
       </View>
-      <UploadButton onPicked={onPicked} disabled={loading} />
-      {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
-      <FlatList
-        data={videos}
-        keyExtractor={(item) => item.path}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        renderItem={({ item }) => <VideoPlayer uri={item.url} />}
-        ListEmptyComponent={<Text>No hay videos</Text>}
-        contentContainerStyle={{ paddingVertical: 8 }}
-      />
     </View>
   );
 }
