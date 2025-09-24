@@ -4,13 +4,14 @@ import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { supabase } from "@/src/lib/supabase";
 // import { Link } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, View } from "react-native";
+import { Dimensions, FlatList, View } from "react-native";
 import { Text } from "react-native-paper";
 
 type PublicVideoItem = { path: string; url: string };
 
 export default function HomeScreen() {
   // const { user } = useAuth();
+  const { width, height } = Dimensions.get("window");
   const [videos, setVideos] = useState<PublicVideoItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [lastError, setLastError] = useState<string | null>(null);
@@ -87,22 +88,41 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1 }}>
       <AppNavbar />
-      <View style={{ padding: 16, gap: 12 }}>
-        <Text variant="titleLarge">Explorar videos</Text>
-
-        {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
-
-        <FlatList
-          data={videos}
-          keyExtractor={(item) => item.path}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-          renderItem={({ item }) => <VideoPlayer uri={item.url} />}
-          ListEmptyComponent={
+      {lastError ? (
+        <Text style={{ color: "red", padding: 8 }}>{lastError}</Text>
+      ) : null}
+      <FlatList
+        data={videos}
+        keyExtractor={(item) => item.path}
+        renderItem={({ item }) => (
+          <View style={{ width, height, backgroundColor: "#000" }}>
+            <VideoPlayer uri={item.url} width={width} height={height} />
+          </View>
+        )}
+        pagingEnabled
+        snapToAlignment="start"
+        decelerationRate="fast"
+        showsVerticalScrollIndicator={false}
+        snapToInterval={height}
+        getItemLayout={(_, index) => ({
+          length: height,
+          offset: height * index,
+          index,
+        })}
+        style={{ flex: 1 }}
+        ListEmptyComponent={
+          <View
+            style={{
+              width,
+              height,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             <Text>{loading ? "Cargando..." : "No hay videos disponibles"}</Text>
-          }
-          contentContainerStyle={{ paddingVertical: 8 }}
-        />
-      </View>
+          </View>
+        }
+      />
     </View>
   );
 }
