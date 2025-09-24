@@ -24,8 +24,10 @@ function ProtectedStack() {
   }
 
   const isInAuth = pathname?.startsWith("/auth");
-  if (!user && !isInAuth) {
-    return <Redirect href="/auth/login" />;
+  const isPublicRoot = pathname === "/";
+  // Permitir ruta pública "/" sin sesión
+  if (!user && !isInAuth && !isPublicRoot) {
+    return <Redirect href="/" />;
   }
 
   if (user && isInAuth) {
