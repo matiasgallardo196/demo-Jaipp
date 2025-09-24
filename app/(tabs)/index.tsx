@@ -1,4 +1,5 @@
 import { VideoPlayer } from "@/src/components/VideoPlayer";
+import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 import { Link } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import { Button, Text } from "react-native-paper";
 type PublicVideoItem = { path: string; url: string };
 
 export default function HomeScreen() {
+  const { user } = useAuth();
   const [videos, setVideos] = useState<PublicVideoItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [lastError, setLastError] = useState<string | null>(null);
@@ -16,6 +18,7 @@ export default function HomeScreen() {
     setLoading(true);
     setLastError(null);
     try {
+      // Feed público (todas las carpetas) SIEMPRE
       const { data: rootItems, error: rootError } = await supabase.storage
         .from("videos")
         .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
@@ -42,7 +45,6 @@ export default function HomeScreen() {
           all.push({ path: filePath, url: data.publicUrl });
         }
       }
-
       setVideos(all);
     } catch (e: any) {
       setLastError(e?.message ?? "Error cargando videos");
@@ -65,9 +67,15 @@ export default function HomeScreen() {
         }}
       >
         <Text variant="titleLarge">Explorar videos</Text>
-        <Link href="/auth/login" asChild>
-          <Button mode="text">Iniciar sesión</Button>
-        </Link>
+        {user ? (
+          <Link href="/(tabs)/profile" asChild>
+            <Button mode="text">Mi perfil</Button>
+          </Link>
+        ) : (
+          <Link href="/auth/login" asChild>
+            <Button mode="text">Iniciar sesión</Button>
+          </Link>
+        )}
       </View>
 
       {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}

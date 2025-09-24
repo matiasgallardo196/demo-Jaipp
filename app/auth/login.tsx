@@ -1,8 +1,8 @@
+import { useAuth } from "@/src/context/AuthContext";
+import { Link } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Link } from "expo-router";
-import { TextInput, Button, Text } from "react-native-paper";
-import { useAuth } from "@/src/context/AuthContext";
+import { Button, Text, TextInput } from "react-native-paper";
 
 export default function LoginScreen() {
   const { signIn, loading } = useAuth();
@@ -49,9 +49,16 @@ export default function LoginScreen() {
       >
         Entrar
       </Button>
-      <Button mode="text" compact>
-        <Link href="/auth/signup">¿No tenés cuenta? Crear cuenta</Link>
-      </Button>
+      <Link href="/auth/signup" asChild>
+        <Button mode="text" compact>
+          ¿No tenés cuenta? Crear cuenta
+        </Button>
+      </Link>
+      <Link href="/(tabs)" asChild>
+        <Button mode="text" compact>
+          Volver al feed público
+        </Button>
+      </Link>
     </View>
   );
 }

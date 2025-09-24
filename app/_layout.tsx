@@ -32,7 +32,7 @@ function ProtectedStack() {
   }
 
   if (user && isInAuth) {
-    return <Redirect href="/(tabs)" />;
+    return <Redirect href="/(tabs)/profile" />;
   }
 
   return (
