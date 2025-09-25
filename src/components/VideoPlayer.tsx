@@ -1,23 +1,43 @@
-import React from "react";
-import { View } from "react-native";
 import { VideoView, useVideoPlayer } from "expo-video";
+import React, { useEffect } from "react";
+import { View } from "react-native";
 
 export const VideoPlayer: React.FC<{
   uri: string;
   width?: number;
   height?: number;
-}> = ({ uri, width = 320, height = 200 }) => {
+  autoplay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
+}> = ({
+  uri,
+  width = 320,
+  height = 200,
+  autoplay = false,
+  loop = false,
+  muted = false,
+}) => {
   const player = useVideoPlayer(
     {
       uri,
       headers: undefined,
     },
     (p) => {
-      p.loop = false;
-      // No reproducir automáticamente para evitar consumo
-      p.muted = false;
+      p.loop = loop;
+      p.muted = muted;
     }
   );
+
+  useEffect(() => {
+    if (!player) return;
+    player.loop = loop;
+    player.muted = muted;
+    if (autoplay) {
+      player.play();
+    } else {
+      player.pause();
+    }
+  }, [player, autoplay, loop, muted]);
 
   return (
     <View style={{ width, height }}>
@@ -26,7 +46,7 @@ export const VideoPlayer: React.FC<{
         contentFit="cover"
         allowsFullscreen
         allowsPictureInPicture
-        nativeControls
+        nativeControls={false}
         player={player}
       />
     </View>

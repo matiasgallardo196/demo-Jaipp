@@ -3,7 +3,7 @@ import { VideoPlayer } from "@/src/components/VideoPlayer";
 // import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 // import { Link } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Dimensions, FlatList, View } from "react-native";
 import { Text } from "react-native-paper";
 
@@ -15,6 +15,14 @@ export default function HomeScreen() {
   const [videos, setVideos] = useState<PublicVideoItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const viewabilityConfigRef = useRef({ itemVisiblePercentThreshold: 80 });
+  const onViewRef = useRef(({ viewableItems }: any) => {
+    if (viewableItems?.length > 0) {
+      const idx = viewableItems[0].index ?? 0;
+      setCurrentIndex(idx);
+    }
+  });
 
   const loadAllVideos = useCallback(async () => {
     setLoading(true);
@@ -94,9 +102,15 @@ export default function HomeScreen() {
       <FlatList
         data={videos}
         keyExtractor={(item) => item.path}
-        renderItem={({ item }) => (
+        renderItem={({ item, index }) => (
           <View style={{ width, height, backgroundColor: "#000" }}>
-            <VideoPlayer uri={item.url} width={width} height={height} />
+            <VideoPlayer
+              uri={item.url}
+              width={width}
+              height={height}
+              autoplay={index === currentIndex}
+              loop
+            />
           </View>
         )}
         pagingEnabled
@@ -104,6 +118,8 @@ export default function HomeScreen() {
         decelerationRate="fast"
         showsVerticalScrollIndicator={false}
         snapToInterval={height}
+        onViewableItemsChanged={onViewRef.current}
+        viewabilityConfig={viewabilityConfigRef.current}
         getItemLayout={(_, index) => ({
           length: height,
           offset: height * index,
