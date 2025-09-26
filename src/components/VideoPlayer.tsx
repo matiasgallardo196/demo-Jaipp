@@ -1,6 +1,7 @@
+import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -126,13 +127,18 @@ export const VideoPlayer: React.FC<{
             style={{
               backgroundColor: "rgba(0,0,0,0.35)",
               borderRadius: 48,
-              paddingVertical: 12,
+              paddingVertical: 16,
               paddingHorizontal: 16,
+              borderWidth: 1,
+              borderColor: "rgba(255,255,255,0.25)",
+              shadowColor: "#000",
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 6,
             }}
           >
-            <Text style={{ color: "#fff", fontSize: 28, fontWeight: "600" }}>
-              ⏸
-            </Text>
+            <Ionicons name="pause" size={36} color="#FFFFFF" />
           </View>
         </View>
       ) : null}
