@@ -1,6 +1,6 @@
 import { VideoView, useVideoPlayer } from "expo-video";
-import React, { useEffect } from "react";
-import { Platform, View } from "react-native";
+import React, { useCallback, useEffect } from "react";
+import { Platform, Pressable, View } from "react-native";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -59,8 +59,19 @@ export const VideoPlayer: React.FC<{
     };
   }, [player, autoplay, loop, muted]);
 
+  const onTogglePlay = useCallback(() => {
+    if (!player) return;
+    try {
+      if (player.playing) {
+        player.pause();
+      } else {
+        player.play();
+      }
+    } catch {}
+  }, [player]);
+
   return (
-    <View style={{ width, height }}>
+    <View style={{ width, height, position: "relative" }}>
       <VideoView
         style={{ width: "100%", height: "100%", backgroundColor: "#000" }}
         contentFit="cover"
@@ -70,6 +81,10 @@ export const VideoPlayer: React.FC<{
           : {})}
         nativeControls={false}
         player={player}
+      />
+      <Pressable
+        onPress={onTogglePlay}
+        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
       />
     </View>
   );
