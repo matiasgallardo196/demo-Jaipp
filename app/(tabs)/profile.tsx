@@ -4,13 +4,26 @@ import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, View } from "react-native";
+import { Alert, FlatList, Image, View } from "react-native";
 import { Text } from "react-native-paper";
 
-type VideoItem = { path: string; url: string; creatorName?: string };
+type VideoItem = {
+  path: string;
+  url: string;
+  creatorName?: string;
+  creatorAvatarUrl?: string;
+};
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
+  const displayName =
+    ((user as any)?.user_metadata?.name as string | undefined) ??
+    user?.email ??
+    "";
+  const avatarUrl =
+    ((user as any)?.user_metadata?.avatar_url as string | undefined) ??
+    undefined;
+  const avatarInitial = (displayName || "?").charAt(0).toUpperCase();
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
@@ -21,7 +34,9 @@ export default function ProfileScreen() {
     try {
       const { data: rows, error: vidsError } = await supabase
         .from("videos")
-        .select("file_path, public_url, creator_name, created_at")
+        .select(
+          "file_path, public_url, creator_name, creator_avatar_url, created_at"
+        )
         .eq("creator_id", user.id)
         .order("created_at", { ascending: false });
       if (!vidsError && rows && rows.length > 0) {
@@ -35,6 +50,7 @@ export default function ProfileScreen() {
             path,
             url: ensuredUrl,
             creatorName: r.creator_name as string | undefined,
+            creatorAvatarUrl: r.creator_avatar_url as string | undefined,
           };
         });
         setVideos(fromTable);
@@ -64,6 +80,9 @@ export default function ProfileScreen() {
           url: data.publicUrl,
           creatorName:
             (user as any)?.user_metadata?.name ?? user.email ?? undefined,
+          creatorAvatarUrl: (user as any)?.user_metadata?.avatar_url as
+            | string
+            | undefined,
         };
       });
     setVideos(withUrls);
@@ -124,6 +143,8 @@ export default function ProfileScreen() {
                 creator_id: user.id,
                 creator_name:
                   (user as any)?.user_metadata?.name ?? user.email ?? null,
+                creator_avatar_url:
+                  (user as any)?.user_metadata?.avatar_url ?? null,
               },
             ],
             { onConflict: "file_path" }
@@ -145,11 +166,34 @@ export default function ProfileScreen() {
     <View style={{ flex: 1 }}>
       <AppNavbar />
       <View style={{ padding: 16, gap: 12 }}>
-        <Text variant="titleLarge">
-          {user?.user_metadata?.name
-            ? `Hola, ${user.user_metadata.name}`
-            : "Mi perfil"}
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          {avatarUrl ? (
+            <Image
+              source={{ uri: avatarUrl }}
+              style={{ width: 48, height: 48, borderRadius: 24 }}
+            />
+          ) : (
+            <View
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: 24,
+                backgroundColor: "#d32f2f",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                {avatarInitial}
+              </Text>
+            </View>
+          )}
+          <Text variant="titleLarge">
+            {user?.user_metadata?.name
+              ? `Hola, ${user.user_metadata.name}`
+              : "Mi perfil"}
+          </Text>
+        </View>
         <UploadButton onPicked={onPicked} disabled={loading} />
         {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
         <FlatList
@@ -162,6 +206,7 @@ export default function ProfileScreen() {
               loop
               autoplay
               creatorName={item.creatorName}
+              creatorAvatarUrl={item.creatorAvatarUrl}
             />
           )}
           ListEmptyComponent={<Text>No hay videos</Text>}

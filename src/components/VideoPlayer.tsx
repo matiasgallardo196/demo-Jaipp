@@ -2,7 +2,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { Image, Platform, Pressable, Text, View } from "react-native";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -12,6 +12,7 @@ export const VideoPlayer: React.FC<{
   loop?: boolean;
   muted?: boolean;
   creatorName?: string;
+  creatorAvatarUrl?: string;
 }> = ({
   uri,
   width = 320,
@@ -20,6 +21,7 @@ export const VideoPlayer: React.FC<{
   loop = false,
   muted = false,
   creatorName,
+  creatorAvatarUrl,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isUserPaused, setIsUserPaused] = useState<boolean>(false);
@@ -133,8 +135,17 @@ export const VideoPlayer: React.FC<{
             paddingHorizontal: 10,
             borderWidth: 1,
             borderColor: "rgba(255,255,255,0.2)",
+            flexDirection: "row",
+            alignItems: "center",
+            gap: 8,
           }}
         >
+          {creatorAvatarUrl ? (
+            <Image
+              source={{ uri: creatorAvatarUrl }}
+              style={{ width: 24, height: 24, borderRadius: 12 }}
+            />
+          ) : null}
           <Text
             numberOfLines={1}
             style={{

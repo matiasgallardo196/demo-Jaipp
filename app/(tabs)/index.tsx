@@ -7,7 +7,12 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Dimensions, FlatList, View } from "react-native";
 import { Text } from "react-native-paper";
 
-type PublicVideoItem = { path: string; url: string; creatorName?: string };
+type PublicVideoItem = {
+  path: string;
+  url: string;
+  creatorName?: string;
+  creatorAvatarUrl?: string;
+};
 
 export default function HomeScreen() {
   // const { user } = useAuth();
@@ -31,7 +36,9 @@ export default function HomeScreen() {
       // 1) Intentar feed desde tabla pública 'videos'
       const { data: rows, error } = await supabase
         .from("videos")
-        .select("file_path, public_url, creator_name, created_at")
+        .select(
+          "file_path, public_url, creator_name, creator_avatar_url, created_at"
+        )
         .order("created_at", { ascending: false });
       if (!error && rows && rows.length > 0) {
         const fromTable: PublicVideoItem[] = rows.map((r: any) => {
@@ -44,6 +51,7 @@ export default function HomeScreen() {
             path,
             url: ensuredUrl,
             creatorName: r.creator_name as string | undefined,
+            creatorAvatarUrl: r.creator_avatar_url as string | undefined,
           };
         });
         setVideos(fromTable);
@@ -133,6 +141,7 @@ export default function HomeScreen() {
               autoplay={index === currentIndex}
               loop
               creatorName={item.creatorName}
+              creatorAvatarUrl={item.creatorAvatarUrl}
             />
           </View>
         )}
