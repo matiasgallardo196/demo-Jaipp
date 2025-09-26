@@ -1,4 +1,3 @@
-import { useAuth } from "@/src/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useCallback, useEffect, useState } from "react";
@@ -14,6 +13,8 @@ export const VideoPlayer: React.FC<{
   creatorName?: string;
   creatorAvatarUrl?: string;
   description?: string;
+  /** cuánto subir el overlay (nombre + avatar + descripción) en píxeles */
+  overlayOffset?: number;
 }> = ({
   uri,
   width = 320,
@@ -24,25 +25,17 @@ export const VideoPlayer: React.FC<{
   creatorName,
   creatorAvatarUrl,
   description,
+  overlayOffset = 32,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isUserPaused, setIsUserPaused] = useState<boolean>(false);
-  const { user } = useAuth();
-  const player = useVideoPlayer(
-    {
-      uri,
-      headers: undefined,
-    },
-    (p) => {
-      // Manejaremos el loop manualmente para evitar cierres en Android
-      p.loop = false;
-      p.muted = muted;
-    }
-  );
+  const player = useVideoPlayer({ uri, headers: undefined }, (p) => {
+    p.loop = false;
+    p.muted = muted;
+  });
 
   useEffect(() => {
     if (!player) return;
-    // Mantener loop nativo desactivado; gestionamos manualmente con playToEnd
     player.loop = false;
     player.muted = muted;
     if (autoplay) {
@@ -50,36 +43,28 @@ export const VideoPlayer: React.FC<{
     } else {
       player.pause();
     }
-    // estado inicial
     try {
-      // playing es readonly en el player
-      // @ts-ignore
-      setIsPlaying(!!player.playing);
+      /* @ts-ignore */ setIsPlaying(!!player.playing);
     } catch {}
 
-    // Pausar de forma segura al finalizar si no hay loop
-    const subscription = player.addListener?.("playToEnd", () => {
+    const subEnd = player.addListener?.("playToEnd", () => {
       try {
-        // Reiniciar manualmente y reanudar si se solicita loop
         player.currentTime = 0;
         if (loop) player.play();
       } catch {}
     });
-    const playingSub = player.addListener?.("playingChange", (e: any) => {
+    const subPlay = player.addListener?.("playingChange", (e: any) => {
       try {
         const playingNow = !!e?.isPlaying;
         setIsPlaying(playingNow);
-        if (playingNow) {
-          // Si vuelve a reproducir (por usuario o por loop), ocultar indicador de pausa de usuario
-          setIsUserPaused(false);
-        }
+        if (playingNow) setIsUserPaused(false);
       } catch {}
     });
 
     return () => {
       try {
-        subscription?.remove?.();
-        playingSub?.remove?.();
+        subEnd?.remove?.();
+        subPlay?.remove?.();
       } catch {}
       try {
         player.pause();
@@ -114,18 +99,20 @@ export const VideoPlayer: React.FC<{
         nativeControls={false}
         player={player}
       />
+
       <Pressable
         onPress={onTogglePlay}
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
       />
-      {/* Overlay inferior con nombre del creador */}
+
+      {/* Overlay inferior con nombre/imagen/descripcion + levantado */}
       <View
         pointerEvents="none"
         style={{
           position: "absolute",
           left: 12,
           right: 12,
-          bottom: 12,
+          bottom: 12 + overlayOffset, // 👈 lo subimos
           alignItems: "flex-start",
         }}
       >
@@ -145,44 +132,43 @@ export const VideoPlayer: React.FC<{
           {creatorAvatarUrl ? (
             <Image
               source={{ uri: creatorAvatarUrl }}
-              style={{ width: 24, height: 24, borderRadius: 12 }}
+              style={{ width: 128, height: 128, borderRadius: 12 }}
             />
           ) : null}
-          <Text
-            numberOfLines={1}
-            style={{
-              color: "#fff",
-              fontSize: 14,
-              fontWeight: "600",
-              textShadowColor: "rgba(0,0,0,0.4)",
-              textShadowRadius: 4,
-              textShadowOffset: { width: 0, height: 1 },
-              maxWidth: width - 24,
-            }}
-          >
-            {
-              (creatorName ??
-                (user as any)?.user_metadata?.name ??
-                user?.email ??
-                "Anónimo") as string
-            }
-          </Text>
-          {description ? (
+          <View style={{ flex: 1 }}>
             <Text
-              numberOfLines={2}
+              numberOfLines={1}
               style={{
                 color: "#fff",
-                fontSize: 12,
-                opacity: 0.9,
-                marginTop: 2,
+                fontSize: 14,
+                fontWeight: "600",
+                textShadowColor: "rgba(0,0,0,0.4)",
+                textShadowRadius: 4,
+                textShadowOffset: { width: 0, height: 1 },
                 maxWidth: width - 24,
               }}
             >
-              {description}
+              {creatorName ? `@${creatorName}` : "Anónimo"}
             </Text>
-          ) : null}
+
+            {description ? (
+              <Text
+                numberOfLines={2}
+                style={{
+                  color: "#fff",
+                  fontSize: 12,
+                  opacity: 0.9,
+                  marginTop: 2,
+                  maxWidth: width - 24,
+                }}
+              >
+                {description}
+              </Text>
+            ) : null}
+          </View>
         </View>
       </View>
+
       {!isPlaying && isUserPaused ? (
         <View
           pointerEvents="none"
