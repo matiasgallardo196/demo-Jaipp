@@ -3,9 +3,11 @@ import { VideoPlayer } from "@/src/components/VideoPlayer";
 // import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 // import { Link } from "expo-router";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Dimensions, FlatList, View } from "react-native";
 import { Text } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type PublicVideoItem = {
   path: string;
@@ -18,6 +20,10 @@ type PublicVideoItem = {
 export default function HomeScreen() {
   // const { user } = useAuth();
   const { width, height } = Dimensions.get("window");
+  const tabBarHeight = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
+  const NAVBAR_HEIGHT = 56;
+  const availableHeight = Math.max(0, height - NAVBAR_HEIGHT - tabBarHeight);
   const [videos, setVideos] = useState<PublicVideoItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [lastError, setLastError] = useState<string | null>(null);
@@ -135,11 +141,13 @@ export default function HomeScreen() {
         data={videos}
         keyExtractor={(item) => item.path}
         renderItem={({ item, index }) => (
-          <View style={{ width, height, backgroundColor: "#000" }}>
+          <View
+            style={{ width, height: availableHeight, backgroundColor: "#000" }}
+          >
             <VideoPlayer
               uri={item.url}
               width={width}
-              height={height}
+              height={availableHeight}
               autoplay={index === currentIndex}
               loop
               creatorName={item.creatorName}
@@ -152,12 +160,12 @@ export default function HomeScreen() {
         snapToAlignment="start"
         decelerationRate="fast"
         showsVerticalScrollIndicator={false}
-        snapToInterval={height}
+        snapToInterval={availableHeight}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewabilityConfigRef.current}
         getItemLayout={(_, index) => ({
-          length: height,
-          offset: height * index,
+          length: availableHeight,
+          offset: availableHeight * index,
           index,
         })}
         style={{ flex: 1 }}
@@ -165,7 +173,7 @@ export default function HomeScreen() {
           <View
             style={{
               width,
-              height,
+              height: availableHeight,
               alignItems: "center",
               justifyContent: "center",
             }}
