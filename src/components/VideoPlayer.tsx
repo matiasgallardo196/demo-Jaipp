@@ -136,6 +136,7 @@ export const VideoPlayer: React.FC<{
               shadowRadius: 8,
               shadowOffset: { width: 0, height: 4 },
               elevation: 6,
+              transform: [{ translateY: -height * 0.1 }],
             }}
           >
             <Ionicons name="pause" size={36} color="#FFFFFF" />
