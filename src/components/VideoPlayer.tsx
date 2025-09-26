@@ -13,6 +13,7 @@ export const VideoPlayer: React.FC<{
   muted?: boolean;
   creatorName?: string;
   creatorAvatarUrl?: string;
+  description?: string;
 }> = ({
   uri,
   width = 320,
@@ -22,6 +23,7 @@ export const VideoPlayer: React.FC<{
   muted = false,
   creatorName,
   creatorAvatarUrl,
+  description,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isUserPaused, setIsUserPaused] = useState<boolean>(false);
@@ -165,6 +167,20 @@ export const VideoPlayer: React.FC<{
                 "Anónimo") as string
             }
           </Text>
+          {description ? (
+            <Text
+              numberOfLines={2}
+              style={{
+                color: "#fff",
+                fontSize: 12,
+                opacity: 0.9,
+                marginTop: 2,
+                maxWidth: width - 24,
+              }}
+            >
+              {description}
+            </Text>
+          ) : null}
         </View>
       </View>
       {!isPlaying && isUserPaused ? (

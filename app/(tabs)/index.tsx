@@ -12,6 +12,7 @@ type PublicVideoItem = {
   url: string;
   creatorName?: string;
   creatorAvatarUrl?: string;
+  description?: string;
 };
 
 export default function HomeScreen() {
@@ -37,7 +38,7 @@ export default function HomeScreen() {
       const { data: rows, error } = await supabase
         .from("videos")
         .select(
-          "file_path, public_url, creator_name, creator_avatar_url, created_at"
+          "file_path, public_url, creator_name, creator_avatar_url, description, created_at"
         )
         .order("created_at", { ascending: false });
       if (!error && rows && rows.length > 0) {
@@ -52,6 +53,7 @@ export default function HomeScreen() {
             url: ensuredUrl,
             creatorName: r.creator_name as string | undefined,
             creatorAvatarUrl: r.creator_avatar_url as string | undefined,
+            description: r.description as string | undefined,
           };
         });
         setVideos(fromTable);
@@ -142,6 +144,7 @@ export default function HomeScreen() {
               loop
               creatorName={item.creatorName}
               creatorAvatarUrl={item.creatorAvatarUrl}
+              description={item.description}
             />
           </View>
         )}

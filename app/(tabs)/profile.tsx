@@ -5,13 +5,21 @@ import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, Image, View } from "react-native";
-import { Text } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Button,
+  Dialog,
+  Portal,
+  Text,
+  TextInput,
+} from "react-native-paper";
 
 type VideoItem = {
   path: string;
   url: string;
   creatorName?: string;
   creatorAvatarUrl?: string;
+  description?: string;
 };
 
 export default function ProfileScreen() {
@@ -27,6 +35,9 @@ export default function ProfileScreen() {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [lastError, setLastError] = useState<string | null>(null);
+  const [pendingVideo, setPendingVideo] = useState<PickedVideo | null>(null);
+  const [pendingDescription, setPendingDescription] = useState<string>("");
+  const [askDescription, setAskDescription] = useState<boolean>(false);
 
   const refresh = useCallback(async () => {
     if (!user) return;
@@ -35,7 +46,7 @@ export default function ProfileScreen() {
       const { data: rows, error: vidsError } = await supabase
         .from("videos")
         .select(
-          "file_path, public_url, creator_name, creator_avatar_url, created_at"
+          "file_path, public_url, creator_name, creator_avatar_url, description, created_at"
         )
         .eq("creator_id", user.id)
         .order("created_at", { ascending: false });
@@ -51,6 +62,7 @@ export default function ProfileScreen() {
             url: ensuredUrl,
             creatorName: r.creator_name as string | undefined,
             creatorAvatarUrl: r.creator_avatar_url as string | undefined,
+            description: r.description as string | undefined,
           };
         });
         setVideos(fromTable);
@@ -83,6 +95,7 @@ export default function ProfileScreen() {
           creatorAvatarUrl: (user as any)?.user_metadata?.avatar_url as
             | string
             | undefined,
+          description: undefined,
         };
       });
     setVideos(withUrls);
@@ -92,8 +105,8 @@ export default function ProfileScreen() {
     refresh();
   }, [refresh]);
 
-  const onPicked = useCallback(
-    async (video: PickedVideo) => {
+  const doUpload = useCallback(
+    async (video: PickedVideo, description: string) => {
       if (!user) return;
       setLoading(true);
       try {
@@ -145,6 +158,7 @@ export default function ProfileScreen() {
                   (user as any)?.user_metadata?.name ?? user.email ?? null,
                 creator_avatar_url:
                   (user as any)?.user_metadata?.avatar_url ?? null,
+                description: description || null,
               },
             ],
             { onConflict: "file_path" }
@@ -161,6 +175,26 @@ export default function ProfileScreen() {
     },
     [user, refresh]
   );
+
+  const onPicked = useCallback((video: PickedVideo) => {
+    setPendingVideo(video);
+    setPendingDescription("");
+    setAskDescription(true);
+  }, []);
+
+  const confirmUpload = useCallback(async () => {
+    if (!pendingVideo) return;
+    setAskDescription(false);
+    await doUpload(pendingVideo, pendingDescription.trim());
+    setPendingVideo(null);
+    setPendingDescription("");
+  }, [pendingVideo, pendingDescription, doUpload]);
+
+  const cancelUpload = useCallback(() => {
+    setAskDescription(false);
+    setPendingVideo(null);
+    setPendingDescription("");
+  }, []);
 
   return (
     <View style={{ flex: 1 }}>
@@ -196,6 +230,34 @@ export default function ProfileScreen() {
         </View>
         <UploadButton onPicked={onPicked} disabled={loading} />
         {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
+        <Portal>
+          <Dialog visible={askDescription} onDismiss={cancelUpload}>
+            <Dialog.Title>Descripción del video</Dialog.Title>
+            <Dialog.Content>
+              <TextInput
+                label="Descripción"
+                value={pendingDescription}
+                onChangeText={setPendingDescription}
+                mode="outlined"
+                multiline
+              />
+            </Dialog.Content>
+            <Dialog.Actions>
+              <Button onPress={cancelUpload} disabled={loading}>
+                Cancelar
+              </Button>
+              <Button onPress={confirmUpload} loading={loading}>
+                Subir
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+          <Dialog visible={loading && !askDescription} dismissable={false}>
+            <Dialog.Content style={{ alignItems: "center", gap: 12 }}>
+              <ActivityIndicator />
+              <Text>Subiendo video...</Text>
+            </Dialog.Content>
+          </Dialog>
+        </Portal>
         <FlatList
           data={videos}
           keyExtractor={(item) => item.path}
@@ -207,6 +269,7 @@ export default function ProfileScreen() {
               autoplay
               creatorName={item.creatorName}
               creatorAvatarUrl={item.creatorAvatarUrl}
+              description={item.description}
             />
           )}
           ListEmptyComponent={<Text>No hay videos</Text>}
