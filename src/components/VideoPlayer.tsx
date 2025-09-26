@@ -1,6 +1,6 @@
 import { VideoView, useVideoPlayer } from "expo-video";
-import React, { useCallback, useEffect } from "react";
-import { Platform, Pressable, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Platform, Pressable, Text, View } from "react-native";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -17,6 +17,8 @@ export const VideoPlayer: React.FC<{
   loop = false,
   muted = false,
 }) => {
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [isUserPaused, setIsUserPaused] = useState<boolean>(false);
   const player = useVideoPlayer(
     {
       uri,
@@ -39,6 +41,12 @@ export const VideoPlayer: React.FC<{
     } else {
       player.pause();
     }
+    // estado inicial
+    try {
+      // playing es readonly en el player
+      // @ts-ignore
+      setIsPlaying(!!player.playing);
+    } catch {}
 
     // Pausar de forma segura al finalizar si no hay loop
     const subscription = player.addListener?.("playToEnd", () => {
@@ -48,10 +56,21 @@ export const VideoPlayer: React.FC<{
         if (loop) player.play();
       } catch {}
     });
+    const playingSub = player.addListener?.("playingChange", (e: any) => {
+      try {
+        const playingNow = !!e?.isPlaying;
+        setIsPlaying(playingNow);
+        if (playingNow) {
+          // Si vuelve a reproducir (por usuario o por loop), ocultar indicador de pausa de usuario
+          setIsUserPaused(false);
+        }
+      } catch {}
+    });
 
     return () => {
       try {
         subscription?.remove?.();
+        playingSub?.remove?.();
       } catch {}
       try {
         player.pause();
@@ -64,8 +83,12 @@ export const VideoPlayer: React.FC<{
     try {
       if (player.playing) {
         player.pause();
+        setIsPlaying(false);
+        setIsUserPaused(true);
       } else {
         player.play();
+        setIsPlaying(true);
+        setIsUserPaused(false);
       }
     } catch {}
   }, [player]);
@@ -86,6 +109,33 @@ export const VideoPlayer: React.FC<{
         onPress={onTogglePlay}
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
       />
+      {!isPlaying && isUserPaused ? (
+        <View
+          pointerEvents="none"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "rgba(0,0,0,0.35)",
+              borderRadius: 48,
+              paddingVertical: 12,
+              paddingHorizontal: 16,
+            }}
+          >
+            <Text style={{ color: "#fff", fontSize: 28, fontWeight: "600" }}>
+              ⏸
+            </Text>
+          </View>
+        </View>
+      ) : null}
     </View>
   );
 };
