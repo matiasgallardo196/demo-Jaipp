@@ -61,7 +61,6 @@ export default function ProfileScreen() {
 
         const form = new FormData();
         form.append("file", {
-          // @ts-expect-error RN FormData file-like
           uri: video.uri,
           name: fileName,
           type: video.mimeType ?? "video/mp4",
