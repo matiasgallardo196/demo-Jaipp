@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, View } from "react-native";
 import { Text } from "react-native-paper";
 
-type VideoItem = { path: string; url: string };
+type VideoItem = { path: string; url: string; creatorName?: string };
 
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
@@ -17,6 +17,32 @@ export default function ProfileScreen() {
 
   const refresh = useCallback(async () => {
     if (!user) return;
+    // Intentar listar desde la tabla videos primero
+    try {
+      const { data: rows, error: vidsError } = await supabase
+        .from("videos")
+        .select("file_path, public_url, creator_name, created_at")
+        .eq("creator_id", user.id)
+        .order("created_at", { ascending: false });
+      if (!vidsError && rows && rows.length > 0) {
+        const fromTable: VideoItem[] = rows.map((r: any) => {
+          const path = r.file_path as string;
+          const pub = r.public_url as string | null;
+          const ensuredUrl =
+            pub ??
+            supabase.storage.from("videos").getPublicUrl(path).data.publicUrl;
+          return {
+            path,
+            url: ensuredUrl,
+            creatorName: r.creator_name as string | undefined,
+          };
+        });
+        setVideos(fromTable);
+        return;
+      }
+    } catch {}
+
+    // Fallback a Storage si la tabla no existe o no hay datos
     const { data, error } = await supabase.storage
       .from("videos")
       .list(`${user.id}/`, {
@@ -33,7 +59,12 @@ export default function ProfileScreen() {
       .map((i) => {
         const filePath = `${user.id}/${i.name}`;
         const { data } = supabase.storage.from("videos").getPublicUrl(filePath);
-        return { path: filePath, url: data.publicUrl };
+        return {
+          path: filePath,
+          url: data.publicUrl,
+          creatorName:
+            (user as any)?.user_metadata?.name ?? user.email ?? undefined,
+        };
       });
     setVideos(withUrls);
   }, [user]);
@@ -80,6 +111,24 @@ export default function ProfileScreen() {
             `Upload failed (${resp.status}): ${body.slice(0, 200)}`
           );
         }
+        // Guardar registro en la tabla videos (ignorar error si no existe)
+        try {
+          const { data: pub } = supabase.storage
+            .from("videos")
+            .getPublicUrl(filePath);
+          await supabase.from("videos").upsert(
+            [
+              {
+                file_path: filePath,
+                public_url: pub.publicUrl,
+                creator_id: user.id,
+                creator_name:
+                  (user as any)?.user_metadata?.name ?? user.email ?? null,
+              },
+            ],
+            { onConflict: "file_path" }
+          );
+        } catch {}
         await refresh();
       } catch (e: any) {
         const message = e?.message ?? "Error subiendo video";
@@ -96,7 +145,11 @@ export default function ProfileScreen() {
     <View style={{ flex: 1 }}>
       <AppNavbar />
       <View style={{ padding: 16, gap: 12 }}>
-        <Text variant="titleLarge">Mi perfil</Text>
+        <Text variant="titleLarge">
+          {user?.user_metadata?.name
+            ? `Hola, ${user.user_metadata.name}`
+            : "Mi perfil"}
+        </Text>
         <UploadButton onPicked={onPicked} disabled={loading} />
         {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
         <FlatList
@@ -104,7 +157,12 @@ export default function ProfileScreen() {
           keyExtractor={(item) => item.path}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={({ item }) => (
-            <VideoPlayer uri={item.url} loop autoplay />
+            <VideoPlayer
+              uri={item.url}
+              loop
+              autoplay
+              creatorName={item.creatorName}
+            />
           )}
           ListEmptyComponent={<Text>No hay videos</Text>}
           contentContainerStyle={{ paddingVertical: 8 }}

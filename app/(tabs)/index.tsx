@@ -7,7 +7,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Dimensions, FlatList, View } from "react-native";
 import { Text } from "react-native-paper";
 
-type PublicVideoItem = { path: string; url: string };
+type PublicVideoItem = { path: string; url: string; creatorName?: string };
 
 export default function HomeScreen() {
   // const { user } = useAuth();
@@ -28,7 +28,29 @@ export default function HomeScreen() {
     setLoading(true);
     setLastError(null);
     try {
-      // Feed público (todas las carpetas) SIEMPRE usando rol anon vía REST
+      // 1) Intentar feed desde tabla pública 'videos'
+      const { data: rows, error } = await supabase
+        .from("videos")
+        .select("file_path, public_url, creator_name, created_at")
+        .order("created_at", { ascending: false });
+      if (!error && rows && rows.length > 0) {
+        const fromTable: PublicVideoItem[] = rows.map((r: any) => {
+          const path = r.file_path as string;
+          const pub = r.public_url as string | null;
+          const ensuredUrl =
+            pub ??
+            supabase.storage.from("videos").getPublicUrl(path).data.publicUrl;
+          return {
+            path,
+            url: ensuredUrl,
+            creatorName: r.creator_name as string | undefined,
+          };
+        });
+        setVideos(fromTable);
+        return;
+      }
+
+      // 2) Fallback: listar todo el bucket de Storage (público)
       const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL as string;
       const anonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY as string;
       const listUrl = `${supabaseUrl}/storage/v1/object/list/videos`;
@@ -110,6 +132,7 @@ export default function HomeScreen() {
               height={height}
               autoplay={index === currentIndex}
               loop
+              creatorName={item.creatorName}
             />
           </View>
         )}

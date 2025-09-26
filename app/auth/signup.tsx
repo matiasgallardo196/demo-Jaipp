@@ -1,11 +1,12 @@
+import { useAuth } from "@/src/context/AuthContext";
+import { Link } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
-import { Link } from "expo-router";
-import { TextInput, Button, Text } from "react-native-paper";
-import { useAuth } from "@/src/context/AuthContext";
+import { Button, Text, TextInput } from "react-native-paper";
 
 export default function SignupScreen() {
   const { signUp, loading } = useAuth();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +14,7 @@ export default function SignupScreen() {
   const onSubmit = async () => {
     setError(null);
     try {
-      await signUp(email.trim(), password);
+      await signUp(email.trim(), password, name.trim());
     } catch (e: any) {
       setError(e.message ?? "Error al crear cuenta");
     }
@@ -40,12 +41,18 @@ export default function SignupScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
+      <TextInput
+        label="Nombre"
+        value={name}
+        onChangeText={setName}
+        autoCapitalize="words"
+      />
       {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
       <Button
         mode="contained"
         onPress={onSubmit}
         loading={loading}
-        disabled={!email || !password}
+        disabled={!name || !email || !password}
       >
         Registrarme
       </Button>

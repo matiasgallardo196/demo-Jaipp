@@ -28,9 +28,12 @@ export const AppNavbar: React.FC = () => {
       >
         jaipp
       </Text>
-      <View style={{ flexDirection: "row", gap: 8 }}>
+      <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
         {user ? (
           <>
+            <Text style={{ color: "#d32f2f" }}>
+              {(user as any)?.user_metadata?.name ?? user.email}
+            </Text>
             <Link href="/(tabs)/profile" asChild>
               <Button mode="text" labelStyle={{ color: "#d32f2f" }}>
                 Mi perfil

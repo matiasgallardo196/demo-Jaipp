@@ -1,7 +1,8 @@
+import { useAuth } from "@/src/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -10,6 +11,7 @@ export const VideoPlayer: React.FC<{
   autoplay?: boolean;
   loop?: boolean;
   muted?: boolean;
+  creatorName?: string;
 }> = ({
   uri,
   width = 320,
@@ -17,9 +19,11 @@ export const VideoPlayer: React.FC<{
   autoplay = false,
   loop = false,
   muted = false,
+  creatorName,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isUserPaused, setIsUserPaused] = useState<boolean>(false);
+  const { user } = useAuth();
   const player = useVideoPlayer(
     {
       uri,
@@ -110,6 +114,48 @@ export const VideoPlayer: React.FC<{
         onPress={onTogglePlay}
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
       />
+      {/* Overlay inferior con nombre del creador */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          left: 12,
+          right: 12,
+          bottom: 12,
+          alignItems: "flex-start",
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: "rgba(0,0,0,0.35)",
+            borderRadius: 8,
+            paddingVertical: 6,
+            paddingHorizontal: 10,
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.2)",
+          }}
+        >
+          <Text
+            numberOfLines={1}
+            style={{
+              color: "#fff",
+              fontSize: 14,
+              fontWeight: "600",
+              textShadowColor: "rgba(0,0,0,0.4)",
+              textShadowRadius: 4,
+              textShadowOffset: { width: 0, height: 1 },
+              maxWidth: width - 24,
+            }}
+          >
+            {
+              (creatorName ??
+                (user as any)?.user_metadata?.name ??
+                user?.email ??
+                "Anónimo") as string
+            }
+          </Text>
+        </View>
+      </View>
       {!isPlaying && isUserPaused ? (
         <View
           pointerEvents="none"
