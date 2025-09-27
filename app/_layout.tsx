@@ -25,9 +25,27 @@ function ProtectedStack() {
 
   const isInAuth = pathname?.startsWith("/auth");
   const isPublicRoot = pathname === "/";
-  const isHomeTab = pathname === "/(tabs)" || pathname === "/(tabs)/index";
-  // Permitir Home tab y "/" sin sesión
-  if (!user && !isInAuth && !isPublicRoot && !isHomeTab) {
+  const isPublicTab =
+    pathname === "/(tabs)" ||
+    pathname?.startsWith("/(tabs)/index") ||
+    pathname?.startsWith("/(tabs)/librito") ||
+    pathname?.startsWith("/(tabs)/musica") ||
+    pathname === "/index" ||
+    pathname?.startsWith("/librito") ||
+    pathname?.startsWith("/musica");
+  // Permitir tabs públicos y "/" sin sesión; si tocan profile sin login => login
+  if (!user && !isInAuth && !isPublicRoot && !isPublicTab) {
+    const isProfileTab =
+      pathname?.startsWith("/(tabs)/profile") ||
+      pathname?.startsWith("/profile");
+    if (isProfileTab) {
+      const redirectTo = pathname ?? "/(tabs)/profile";
+      return (
+        <Redirect
+          href={`/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`}
+        />
+      );
+    }
     return <Redirect href="/(tabs)" />;
   }
 

@@ -1,11 +1,13 @@
 import { useAuth } from "@/src/context/AuthContext";
-import { Link } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { View } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
 export default function LoginScreen() {
   const { signIn, loading } = useAuth();
+  const router = useRouter();
+  const params = useLocalSearchParams<{ redirectTo?: string }>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -14,6 +16,11 @@ export default function LoginScreen() {
     setError(null);
     try {
       await signIn(email.trim(), password);
+      const dest =
+        typeof params.redirectTo === "string" && params.redirectTo
+          ? params.redirectTo
+          : "/(tabs)/profile";
+      router.replace(dest);
     } catch (e: any) {
       setError(e.message ?? "Error al iniciar sesión");
     }
