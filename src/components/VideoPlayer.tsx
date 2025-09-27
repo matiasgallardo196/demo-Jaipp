@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useCallback, useEffect, useState } from "react";
-import { Image, Platform, Pressable, Text, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -10,11 +10,7 @@ export const VideoPlayer: React.FC<{
   autoplay?: boolean;
   loop?: boolean;
   muted?: boolean;
-  creatorName?: string;
-  creatorAvatarUrl?: string;
-  description?: string;
-  /** cuánto subir el overlay (nombre + avatar + descripción) en píxeles */
-  overlayOffset?: number;
+  /** El componente ya no maneja overlays ni filtros visuales */
 }> = ({
   uri,
   width = 320,
@@ -22,10 +18,6 @@ export const VideoPlayer: React.FC<{
   autoplay = false,
   loop = false,
   muted = false,
-  creatorName,
-  creatorAvatarUrl,
-  description,
-  overlayOffset = 32,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isUserPaused, setIsUserPaused] = useState<boolean>(false);
@@ -104,70 +96,6 @@ export const VideoPlayer: React.FC<{
         onPress={onTogglePlay}
         style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
       />
-
-      {/* Overlay inferior con nombre/imagen/descripcion + levantado */}
-      <View
-        pointerEvents="none"
-        style={{
-          position: "absolute",
-          left: 12,
-          right: 12,
-          bottom: 12 + overlayOffset, // 👈 lo subimos
-          alignItems: "flex-start",
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: "rgba(0,0,0,0.35)",
-            borderRadius: 8,
-            paddingVertical: 6,
-            paddingHorizontal: 10,
-            borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.2)",
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 8,
-          }}
-        >
-          {creatorAvatarUrl ? (
-            <Image
-              source={{ uri: creatorAvatarUrl }}
-              style={{ width: 128, height: 128, borderRadius: 12 }}
-            />
-          ) : null}
-          <View style={{ flex: 1 }}>
-            <Text
-              numberOfLines={1}
-              style={{
-                color: "#fff",
-                fontSize: 14,
-                fontWeight: "600",
-                textShadowColor: "rgba(0,0,0,0.4)",
-                textShadowRadius: 4,
-                textShadowOffset: { width: 0, height: 1 },
-                maxWidth: width - 24,
-              }}
-            >
-              {creatorName ? `@${creatorName}` : "Anónimo"}
-            </Text>
-
-            {description ? (
-              <Text
-                numberOfLines={2}
-                style={{
-                  color: "#fff",
-                  fontSize: 12,
-                  opacity: 0.9,
-                  marginTop: 2,
-                  maxWidth: width - 24,
-                }}
-              >
-                {description}
-              </Text>
-            ) : null}
-          </View>
-        </View>
-      </View>
 
       {!isPlaying && isUserPaused ? (
         <View

@@ -1,4 +1,3 @@
-import { AppNavbar } from "@/src/components/AppNavbar";
 import { UploadButton, type PickedVideo } from "@/src/components/UploadButton";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { useAuth } from "@/src/context/AuthContext";
@@ -198,7 +197,6 @@ export default function ProfileScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      <AppNavbar />
       <View style={{ padding: 16, gap: 12 }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
           {avatarUrl ? (

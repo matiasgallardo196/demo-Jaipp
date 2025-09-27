@@ -1,8 +1,9 @@
+import { VideoOverlayCard } from "@/src/components/VideoOverlayCard";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { supabase } from "@/src/lib/supabase";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, useWindowDimensions, View } from "react-native";
+import { FlatList, Image, useWindowDimensions, View } from "react-native";
 import { Text } from "react-native-paper";
 // solo para header top; NO restamos insets.bottom porque tabBarHeight ya lo incluye
 // import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -99,13 +100,46 @@ export default function HomeScreen() {
         data={videos}
         keyExtractor={(item) => item.path}
         renderItem={({ item, index }) => (
-          <View style={{ width, height: snap, backgroundColor: "#000" }}>
+          <View
+            style={{
+              width,
+              height: snap,
+              backgroundColor: "#000",
+              position: "relative",
+            }}
+          >
             <VideoPlayer
               uri={item.url}
               width={width}
               height={snap}
               autoplay={index === currentIndex}
               loop
+            />
+
+            {/* Filtro estético sobre el video (no bloquea interacción) */}
+            <View
+              pointerEvents="none"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+              }}
+            >
+              <Image
+                source={{
+                  uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Rectangle%209.png",
+                }}
+                style={{ width: "100%", height: "100%" }}
+                resizeMode="cover"
+              />
+            </View>
+
+            {/* Tarjeta por encima del filtro */}
+            <VideoOverlayCard
+              width={width}
+              overlayOffset={32}
               creatorName={item.creatorName}
               creatorAvatarUrl={item.creatorAvatarUrl}
               description={item.description}
