@@ -56,7 +56,7 @@ export default function LoginScreen() {
       >
         Entrar
       </Button>
-      <Link href="/auth/signup" asChild>
+      <Link href="/(tabs)/auth/signup" asChild>
         <Button mode="text" compact>
           ¿No tenés cuenta? Crear cuenta
         </Button>

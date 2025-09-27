@@ -10,6 +10,7 @@ import { AppNavbar } from "@/src/components/AppNavbar";
 export default function TabLayout() {
   return (
     <Tabs
+      initialRouteName="index"
       screenOptions={{
         tabBarActiveTintColor: "#FD3B4A",
         tabBarInactiveTintColor: "#9E9E9E",
@@ -79,6 +80,7 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen name="auth" options={{ href: null }} />
     </Tabs>
   );
 }

@@ -41,7 +41,6 @@ export default function SignupScreen() {
         await signUp(email.trim(), password, name.trim());
       } catch (e: any) {
         const msg = (e?.message ?? "").toString().toLowerCase();
-        // Si el usuario ya existe, intentamos iniciar sesión automáticamente
         if (
           msg.includes("already registered") ||
           msg.includes("already exists")
@@ -52,7 +51,6 @@ export default function SignupScreen() {
         }
       }
 
-      // Subir avatar si fue elegido y guardar en metadata
       if (avatarUri) {
         setUploadingAvatar(true);
         try {
@@ -161,7 +159,7 @@ export default function SignupScreen() {
         Registrarme
       </Button>
       <Button mode="text" compact>
-        <Link href="/auth/login">¿Ya tenés cuenta? Iniciar sesión</Link>
+        <Link href="/(tabs)/auth/login">¿Ya tenés cuenta? Iniciar sesión</Link>
       </Button>
     </View>
   );

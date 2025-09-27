@@ -23,7 +23,8 @@ function ProtectedStack() {
     return null;
   }
 
-  const isInAuth = pathname?.startsWith("/auth");
+  const isInAuth =
+    pathname?.startsWith("/auth") || pathname?.startsWith("/(tabs)/auth");
   const isPublicRoot = pathname === "/";
   const isPublicTab =
     pathname === "/(tabs)" ||
@@ -42,7 +43,9 @@ function ProtectedStack() {
       const redirectTo = pathname ?? "/(tabs)/profile";
       return (
         <Redirect
-          href={`/auth/login?redirectTo=${encodeURIComponent(redirectTo)}`}
+          href={`/(tabs)/auth/login?redirectTo=${encodeURIComponent(
+            redirectTo
+          )}`}
         />
       );
     }
