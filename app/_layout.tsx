@@ -63,7 +63,6 @@ function ProtectedStack() {
         name="modal"
         options={{ presentation: "modal", title: "Modal" }}
       />
-      <Stack.Screen name="auth" options={{ headerShown: false }} />
     </Stack>
   );
 }
