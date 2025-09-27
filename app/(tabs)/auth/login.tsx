@@ -16,15 +16,17 @@ export default function LoginScreen() {
     setError(null);
     try {
       await signIn(email.trim(), password);
-      const dest =
-        typeof params.redirectTo === "string" && params.redirectTo
-          ? params.redirectTo
-          : "/(tabs)/profile";
-      router.replace(dest);
     } catch (e: any) {
       setError(e.message ?? "Error al iniciar sesión");
+      const suffix =
+        typeof params.redirectTo === "string" && params.redirectTo
+          ? `?redirectTo=${encodeURIComponent(params.redirectTo)}`
+          : "";
+      router.replace(`/(tabs)/auth/login${suffix}` as unknown as any);
     }
   };
+
+  // La navegación post-login la maneja el ProtectedStack al detectar `user`
 
   return (
     <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 12 }}>
