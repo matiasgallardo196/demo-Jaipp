@@ -1,4 +1,3 @@
-import { AppNavbar } from "@/src/components/AppNavbar";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { supabase } from "@/src/lib/supabase";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
@@ -6,7 +5,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import { Text } from "react-native-paper";
 // solo para header top; NO restamos insets.bottom porque tabBarHeight ya lo incluye
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+// import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type PublicVideoItem = {
   path: string;
@@ -19,15 +18,14 @@ type PublicVideoItem = {
 export default function HomeScreen() {
   const { width, height: windowHeight } = useWindowDimensions();
   const tabBarHeight = useBottomTabBarHeight() || 0;
-  const insets = useSafeAreaInsets();
 
-  const NAVBAR_HEIGHT = 56; // AppNavbar ya consume el inset superior
-  // ✅ No restamos insets.bottom para evitar el "peek" del siguiente ítem
-  const availableHeight = Math.max(
-    0,
-    windowHeight - NAVBAR_HEIGHT - tabBarHeight
-  );
-  const snap = Math.round(availableHeight); // evita issues de rounding
+  // El header (navbar) se renderiza desde Tabs, así que solo restamos tabBar
+  const availableHeight = Math.max(0, windowHeight - tabBarHeight);
+  const [containerHeight, setContainerHeight] = useState<number>(0);
+  const snap = Math.max(
+    1,
+    Math.round(containerHeight > 0 ? containerHeight : availableHeight)
+  ); // evita issues de rounding y desbordes
 
   const [videos, setVideos] = useState<PublicVideoItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -86,9 +84,13 @@ export default function HomeScreen() {
   }, [loadAllVideos]);
 
   return (
-    <View style={{ flex: 1 }}>
-      <AppNavbar />
-
+    <View
+      style={{ flex: 1 }}
+      onLayout={(e) => {
+        const h = Math.max(1, Math.round(e.nativeEvent.layout.height));
+        if (h !== containerHeight) setContainerHeight(h);
+      }}
+    >
       {lastError ? (
         <Text style={{ color: "red", padding: 8 }}>{lastError}</Text>
       ) : null}
