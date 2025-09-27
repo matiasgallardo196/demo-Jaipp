@@ -29,12 +29,12 @@ export function VideoOverlayCard({
     >
       <View
         style={{
-          backgroundColor: "rgba(0,0,0,0.35)",
-          borderRadius: 8,
+          //ckgroundColor: "rgba(0,0,0,0.35)",
+          //orderRadius: 8,
           paddingVertical: 6,
           paddingHorizontal: 10,
-          borderWidth: 1,
-          borderColor: "rgba(255,255,255,0.2)",
+          //rderWidth: 1,
+          //rderColor: "rgba(255,255,255,0.2)",
           flexDirection: "row",
           alignItems: "center",
           gap: 8,

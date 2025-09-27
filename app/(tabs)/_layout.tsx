@@ -3,17 +3,16 @@ import React from "react";
 import { Image } from "react-native";
 
 import { HapticTab } from "@/components/haptic-tab";
-import { Colors } from "@/constants/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
+// Colors removed: using fixed tab colors
+// import { useColorScheme } from "@/hooks/use-color-scheme";
 import { AppNavbar } from "@/src/components/AppNavbar";
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: "#FD3B4A",
+        tabBarInactiveTintColor: "#9E9E9E",
         tabBarButton: HapticTab,
         header: () => <AppNavbar />,
         tabBarStyle: { backgroundColor: "#1A1A1A" },
@@ -24,12 +23,12 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: () => (
+          tabBarIcon: ({ color }) => (
             <Image
               source={{
                 uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Vector%20(1).png",
               }}
-              style={{ width: 20, height: 20 }}
+              style={{ width: 20, height: 20, tintColor: color }}
               resizeMode="contain"
             />
           ),
@@ -44,7 +43,7 @@ export default function TabLayout() {
               source={{
                 uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Group.png",
               }}
-              style={{ width: 20, height: 20 }}
+              style={{ width: 20, height: 20, tintColor: color }}
               resizeMode="contain"
             />
           ),
@@ -59,7 +58,7 @@ export default function TabLayout() {
               source={{
                 uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/vector%20librito.png",
               }}
-              style={{ width: 20, height: 20 }}
+              style={{ width: 20, height: 20, tintColor: color }}
               resizeMode="contain"
             />
           ),
@@ -74,7 +73,7 @@ export default function TabLayout() {
               source={{
                 uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/vector%20profile.png",
               }}
-              style={{ width: 20, height: 20 }}
+              style={{ width: 20, height: 20, tintColor: color }}
               resizeMode="contain"
             />
           ),
