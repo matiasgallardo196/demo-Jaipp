@@ -1,9 +1,10 @@
+import { VideoFilterOverlay } from "@/src/components/VideoFilterOverlay";
 import { VideoOverlayCard } from "@/src/components/VideoOverlayCard";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { supabase } from "@/src/lib/supabase";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, Image, useWindowDimensions, View } from "react-native";
+import { FlatList, useWindowDimensions, View } from "react-native";
 import { Text } from "react-native-paper";
 // solo para header top; NO restamos insets.bottom porque tabBarHeight ya lo incluye
 // import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -27,6 +28,7 @@ export default function HomeScreen() {
     1,
     Math.round(containerHeight > 0 ? containerHeight : availableHeight)
   ); // evita issues de rounding y desbordes
+  const overlayOffset = Math.max(16, Math.min(64, Math.round(snap * 0.08)));
 
   const [videos, setVideos] = useState<PublicVideoItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -116,30 +118,15 @@ export default function HomeScreen() {
               loop
             />
 
-            {/* Filtro estético sobre el video (no bloquea interacción) */}
-            <View
-              pointerEvents="none"
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-              }}
-            >
-              <Image
-                source={{
-                  uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Rectangle%209.png",
-                }}
-                style={{ width: "100%", height: "100%" }}
-                resizeMode="cover"
-              />
-            </View>
+            <VideoFilterOverlay
+              uri="https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Rectangle%209.png"
+              resizeMode="cover"
+            />
 
             {/* Tarjeta por encima del filtro */}
             <VideoOverlayCard
               width={width}
-              overlayOffset={32}
+              overlayOffset={overlayOffset}
               creatorName={item.creatorName}
               creatorAvatarUrl={item.creatorAvatarUrl}
               description={item.description}

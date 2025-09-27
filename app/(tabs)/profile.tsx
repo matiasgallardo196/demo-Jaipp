@@ -261,14 +261,7 @@ export default function ProfileScreen() {
           keyExtractor={(item) => item.path}
           ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
           renderItem={({ item }) => (
-            <VideoPlayer
-              uri={item.url}
-              loop
-              autoplay
-              creatorName={item.creatorName}
-              creatorAvatarUrl={item.creatorAvatarUrl}
-              description={item.description}
-            />
+            <VideoPlayer uri={item.url} loop autoplay />
           )}
           ListEmptyComponent={<Text>No hay videos</Text>}
           contentContainerStyle={{ paddingVertical: 8 }}
