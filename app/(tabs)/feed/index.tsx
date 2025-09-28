@@ -6,8 +6,6 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import { Text } from "react-native-paper";
-// solo para header top; NO restamos insets.bottom porque tabBarHeight ya lo incluye
-// import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type PublicVideoItem = {
   path: string;
@@ -137,10 +135,10 @@ export default function HomeScreen() {
         snapToAlignment="start"
         decelerationRate="fast"
         showsVerticalScrollIndicator={false}
-        contentInsetAdjustmentBehavior="never" // ✅ que no auto-ajuste márgenes
-        bounces={false} // ✅ evita rebote que muestra el siguiente
-        removeClippedSubviews // ✅ mejor recorte/rendimiento
-        snapToInterval={snap} // ✅ consistente con height
+        contentInsetAdjustmentBehavior="never"
+        bounces={false}
+        removeClippedSubviews
+        snapToInterval={snap}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewabilityConfigRef.current}
         getItemLayout={(_, index) => ({

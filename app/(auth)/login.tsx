@@ -16,17 +16,16 @@ export default function LoginScreen() {
     setError(null);
     try {
       await signIn(email.trim(), password);
+      // Redirección post-login la maneja el layout de (auth)
     } catch (e: any) {
       setError(e.message ?? "Error al iniciar sesión");
       const suffix =
         typeof params.redirectTo === "string" && params.redirectTo
           ? `?redirectTo=${encodeURIComponent(params.redirectTo)}`
           : "";
-      router.replace(`/(tabs)/auth/login${suffix}` as unknown as any);
+      router.replace(`/(auth)/login${suffix}` as unknown as any);
     }
   };
-
-  // La navegación post-login la maneja el ProtectedStack al detectar `user`
 
   return (
     <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 12 }}>
@@ -58,7 +57,7 @@ export default function LoginScreen() {
       >
         Entrar
       </Button>
-      <Link href="/(tabs)/auth/signup" asChild>
+      <Link href="/(auth)/signup" asChild>
         <Button mode="text" compact>
           ¿No tenés cuenta? Crear cuenta
         </Button>

@@ -57,7 +57,7 @@ export default function SignupScreen() {
           const { data: sess } = await supabase.auth.getSession();
           const userId = sess.session?.user?.id;
           const bearerToken =
-            sess.session?.access_token ??
+            sess.session?.access_token ||
             (process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY as string);
           if (!userId) throw new Error("No se pudo obtener el usuario");
 
@@ -159,7 +159,7 @@ export default function SignupScreen() {
         Registrarme
       </Button>
       <Button mode="text" compact>
-        <Link href="/(tabs)/auth/login">¿Ya tenés cuenta? Iniciar sesión</Link>
+        <Link href="/(auth)/login">¿Ya tenés cuenta? Iniciar sesión</Link>
       </Button>
     </View>
   );

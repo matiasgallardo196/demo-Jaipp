@@ -10,7 +10,6 @@ import { AppNavbar } from "@/src/components/AppNavbar";
 export default function TabLayout() {
   return (
     <Tabs
-      initialRouteName="index"
       screenOptions={{
         tabBarActiveTintColor: "#FD3B4A",
         tabBarInactiveTintColor: "#9E9E9E",
@@ -21,7 +20,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="feed/index"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
@@ -36,7 +35,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="musica"
+        name="musica/index"
         options={{
           title: "Musica",
           tabBarIcon: ({ color }) => (
@@ -51,7 +50,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="librito"
+        name="librito/index"
         options={{
           title: "Librito",
           tabBarIcon: ({ color }) => (
@@ -66,7 +65,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="(protected)"
         options={{
           title: "Mi perfil",
           tabBarIcon: ({ color }) => (
@@ -78,9 +77,10 @@ export default function TabLayout() {
               resizeMode="contain"
             />
           ),
+          // usamos absolute path para el href del tab
+          href: "/(tabs)/(protected)/profile",
         }}
       />
-      <Tabs.Screen name="auth" options={{ href: null }} />
     </Tabs>
   );
 }
