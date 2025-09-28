@@ -1,8 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import { Image } from "react-native";
-
-import { HapticTab } from "@/components/haptic-tab";
 // Colors removed: using fixed tab colors
 // import { useColorScheme } from "@/hooks/use-color-scheme";
 import { AppNavbar } from "@/src/components/AppNavbar";
@@ -13,7 +11,6 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: "#FD3B4A",
         tabBarInactiveTintColor: "#9E9E9E",
-        tabBarButton: HapticTab,
         header: () => <AppNavbar />,
         tabBarStyle: { backgroundColor: "#1A1A1A" },
         tabBarShowLabel: false,
