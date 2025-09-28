@@ -34,9 +34,8 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* Rutas de auth dentro de Tabs, ocultas del TabBar */}
-      <Tabs.Screen name="login" options={{ href: null }} />
-      <Tabs.Screen name="signup" options={{ href: null }} />
+      {/* Rutas de auth (login) movidas dentro de (protected) */}
+      {/* signup movido dentro de (protected) */}
       <Tabs.Screen
         name="musica/index"
         options={{

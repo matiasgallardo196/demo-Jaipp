@@ -1,5 +1,5 @@
 import { useAuth } from "@/src/context/AuthContext";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React, { useCallback } from "react";
 import { Image, StatusBar, View } from "react-native";
 import { Button, Text } from "react-native-paper";
@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export const AppNavbar: React.FC = () => {
   const { user, signOut } = useAuth();
+  const router = useRouter();
   const displayName =
     ((user as any)?.user_metadata?.name as string | undefined) ??
     user?.email ??
@@ -17,8 +18,11 @@ export const AppNavbar: React.FC = () => {
   const avatarInitial = (displayName || "?").charAt(0).toUpperCase();
 
   const onLogout = useCallback(async () => {
+    // Primero navegamos al feed público para salir de cualquier ruta protegida
+    router.replace("/(tabs)/feed");
+    // Luego cerramos sesión
     await signOut();
-  }, [signOut]);
+  }, [router, signOut]);
 
   return (
     <SafeAreaView edges={["top"]} style={{ backgroundColor: "#1A1A1A" }}>
@@ -84,7 +88,7 @@ export const AppNavbar: React.FC = () => {
               </Button>
             </>
           ) : (
-            <Link href="/(tabs)/signup" asChild>
+            <Link href="/(tabs)/(protected)/signup" asChild>
               <Button
                 mode="text"
                 labelStyle={{ color: "#d32f2f" }}

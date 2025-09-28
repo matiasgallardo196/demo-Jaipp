@@ -1,12 +1,11 @@
 import { useAuth } from "@/src/context/AuthContext";
 import {
   Link,
-  Redirect,
   useLocalSearchParams,
   usePathname,
   useRouter,
 } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
@@ -31,7 +30,7 @@ export default function LoginScreen() {
           ? params.redirectTo
           : pathname || "/(tabs)";
       router.replace(
-        `/(tabs)/login?redirectTo=${encodeURIComponent(
+        `/(tabs)/(protected)/login?redirectTo=${encodeURIComponent(
           current
         )}` as unknown as any
       );
@@ -42,9 +41,13 @@ export default function LoginScreen() {
     (typeof params.redirectTo === "string" && params.redirectTo) ||
     "/(tabs)/(protected)/profile";
 
-  if (user) {
-    return <Redirect href={to as unknown as any} />;
-  }
+  useEffect(() => {
+    if (user) {
+      router.replace(to as unknown as any);
+    }
+  }, [user, to, router]);
+
+  if (user) return null;
 
   return (
     <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 12 }}>
@@ -76,7 +79,7 @@ export default function LoginScreen() {
       >
         Entrar
       </Button>
-      <Link href="/(tabs)/signup" asChild>
+      <Link href="/(tabs)/(protected)/signup" asChild>
         <Button mode="text" compact>
           ¿No tenés cuenta? Crear cuenta
         </Button>

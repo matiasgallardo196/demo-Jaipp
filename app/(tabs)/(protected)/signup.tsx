@@ -1,13 +1,14 @@
 import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 import * as ImagePicker from "expo-image-picker";
-import { Link, usePathname } from "expo-router";
-import React, { useState } from "react";
+import { Link, usePathname, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import { Platform, View } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
 export default function SignupScreen() {
-  const { signUp, signIn, loading } = useAuth();
+  const { signUp, signIn, loading, user } = useAuth();
+  const router = useRouter();
   const pathname = usePathname();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -15,6 +16,12 @@ export default function SignupScreen() {
   const [error, setError] = useState<string | null>(null);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/(tabs)/(protected)/profile" as any);
+    }
+  }, [user, router]);
 
   const pickAvatar = async () => {
     setError(null);
@@ -100,10 +107,7 @@ export default function SignupScreen() {
             .from("avatar")
             .getPublicUrl(filePath);
           const avatarUrl = pub.publicUrl;
-
-          await supabase.auth.updateUser({
-            data: { avatar_url: avatarUrl },
-          });
+          await supabase.auth.updateUser({ data: { avatar_url: avatarUrl } });
         } finally {
           setUploadingAvatar(false);
         }
@@ -112,6 +116,8 @@ export default function SignupScreen() {
       setError(e.message ?? "Error al crear cuenta");
     }
   };
+
+  if (user) return null;
 
   return (
     <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 12 }}>
@@ -161,7 +167,7 @@ export default function SignupScreen() {
       </Button>
       <Button mode="text" compact>
         <Link
-          href={`/(tabs)/login?redirectTo=${encodeURIComponent(
+          href={`/(tabs)/(protected)/login?redirectTo=${encodeURIComponent(
             pathname || "/(tabs)"
           )}`}
         >
