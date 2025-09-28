@@ -75,11 +75,6 @@ export const AppNavbar: React.FC = () => {
                 </View>
               )}
               <Text style={{ color: "#FD3B4A" }}>{displayName}</Text>
-              <Link href="/(tabs)/profile" asChild>
-                <Button mode="text" labelStyle={{ color: "#FD3B4A" }}>
-                  Mi perfil
-                </Button>
-              </Link>
               <Button
                 mode="text"
                 onPress={onLogout}
