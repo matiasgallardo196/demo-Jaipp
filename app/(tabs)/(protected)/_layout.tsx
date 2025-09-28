@@ -12,7 +12,7 @@ export default function ProtectedGroupLayout() {
     const redirectTo = pathname || "/(tabs)/(protected)/profile";
     return (
       <Redirect
-        href={`/(auth)/login?redirectTo=${encodeURIComponent(redirectTo)}`}
+        href={`/(tabs)/login?redirectTo=${encodeURIComponent(redirectTo)}`}
       />
     );
   }

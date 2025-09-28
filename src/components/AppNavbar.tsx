@@ -84,7 +84,7 @@ export const AppNavbar: React.FC = () => {
               </Button>
             </>
           ) : (
-            <Link href="/auth/signup" asChild>
+            <Link href="/(tabs)/signup" asChild>
               <Button
                 mode="text"
                 labelStyle={{ color: "#d32f2f" }}

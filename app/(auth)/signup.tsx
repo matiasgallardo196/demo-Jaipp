@@ -1,13 +1,14 @@
 import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 import * as ImagePicker from "expo-image-picker";
-import { Link } from "expo-router";
+import { Link, usePathname } from "expo-router";
 import React, { useState } from "react";
 import { Platform, View } from "react-native";
 import { Button, Text, TextInput } from "react-native-paper";
 
 export default function SignupScreen() {
   const { signUp, signIn, loading } = useAuth();
+  const pathname = usePathname();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -159,7 +160,13 @@ export default function SignupScreen() {
         Registrarme
       </Button>
       <Button mode="text" compact>
-        <Link href="/(auth)/login">¿Ya tenés cuenta? Iniciar sesión</Link>
+        <Link
+          href={`/(tabs)/login?redirectTo=${encodeURIComponent(
+            pathname || "/(tabs)"
+          )}`}
+        >
+          ¿Ya tenés cuenta? Iniciar sesión
+        </Link>
       </Button>
     </View>
   );
