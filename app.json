@@ -45,7 +45,8 @@
           "photosPermission": "La app necesita acceso a la galería para subir videos",
           "cameraPermission": "La app necesita acceso a la cámara para grabar videos"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true,
