@@ -4,7 +4,7 @@ import React from "react";
 // Colors removed: using fixed tab colors
 import { AppNavbar } from "@/src/components/AppNavbar";
 import { TabBarIcon } from "@/src/components/TabBarIcon";
-import { TAB_SCREENS } from "./tabs.config";
+import { TAB_SCREENS } from "@/src/config/tabs.config";
 
 export default function TabLayout() {
   return (

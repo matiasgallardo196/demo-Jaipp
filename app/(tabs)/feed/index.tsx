@@ -1,13 +1,13 @@
 import { VideoFilterOverlay } from "@/src/components/VideoFilterOverlay";
 import { VideoOverlayCard } from "@/src/components/VideoOverlayCard";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
+import { FEED_ASSETS } from "@/src/config/feed.assets";
 import { supabase } from "@/src/lib/supabase";
 import { styles } from "@/src/styles/screens/feed.styles";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import { Text } from "react-native-paper";
-import { FEED_ASSETS } from "./feed.assets";
 
 type PublicVideoItem = {
   path: string;
