@@ -1,6 +1,6 @@
 import { styles } from "@/src/components/VideoPlayer/styles";
 import { Ionicons } from "@expo/vector-icons";
-import { VideoView, useVideoPlayer } from "expo-video";
+import { VideoView, useVideoPlayer, type VideoContentFit } from "expo-video";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Animated, Platform, Pressable, View } from "react-native";
 
@@ -16,6 +16,7 @@ export const VideoPlayer: React.FC<{
   showVolume?: boolean; // controla visibilidad del botón de mute
   defaultMuted?: boolean;
   onMuteChange?: (isMuted: boolean) => void;
+  contentFit?: VideoContentFit;
 }> = ({
   uri,
   width = 320,
@@ -28,6 +29,7 @@ export const VideoPlayer: React.FC<{
   showVolume = true,
   defaultMuted,
   onMuteChange,
+  contentFit = "cover",
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
@@ -216,7 +218,7 @@ export const VideoPlayer: React.FC<{
     <View style={[styles.container, { width, height }]}>
       <VideoView
         style={styles.video}
-        contentFit="cover"
+        contentFit={contentFit}
         fullscreenOptions={{ enable: true }}
         {...(Platform.OS === "android"
           ? { surfaceType: "textureView" as const }

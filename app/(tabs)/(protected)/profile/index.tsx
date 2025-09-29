@@ -257,6 +257,7 @@ export default function ProfileScreen() {
               loop
               autoplay={isFocused}
               defaultMuted
+              contentFit="contain"
             />
           )}
           ListEmptyComponent={<Text>No hay videos</Text>}
