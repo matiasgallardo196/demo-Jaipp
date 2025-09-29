@@ -1,8 +1,8 @@
+import { styles } from "@/src/components/VideoPlayer/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Platform, Pressable, View } from "react-native";
-import { styles } from "./styles";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -11,25 +11,56 @@ export const VideoPlayer: React.FC<{
   autoplay?: boolean;
   loop?: boolean;
   muted?: boolean;
+  showControls?: boolean;
+  showProgress?: boolean;
+  showVolume?: boolean; // controla visibilidad del botón de mute
+  initialVolume?: number; // 0..1
+  defaultMuted?: boolean;
+  onMuteChange?: (isMuted: boolean) => void;
 }> = ({
   uri,
   width = 320,
   height = 200,
   autoplay = false,
   loop = false,
-  muted = false,
+  muted,
+  showControls = true,
+  showProgress = true,
+  showVolume = true,
+  initialVolume = 1,
+  defaultMuted,
+  onMuteChange,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isUserPaused, setIsUserPaused] = useState<boolean>(false);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  const [volume, setVolume] = useState<number>(initialVolume);
+  const [isMuted, setIsMuted] = useState<boolean>(
+    muted ?? defaultMuted ?? false
+  );
+  const progressWidthRef = useRef<number>(0);
+  const pollIntervalRef = useRef<number | null>(null);
   const player = useVideoPlayer({ uri, headers: undefined }, (p) => {
     p.loop = false;
-    p.muted = muted;
+    const initialMuted = muted ?? defaultMuted ?? false;
+    p.muted = initialMuted;
+    setIsMuted(initialMuted);
+    try {
+      // @ts-ignore: volume property exists on player in expo-video
+      p.volume = initialVolume;
+    } catch {}
   });
 
   useEffect(() => {
     if (!player) return;
     player.loop = false;
-    player.muted = muted;
+    const effectiveMuted = muted !== undefined ? muted : isMuted;
+    player.muted = effectiveMuted;
+    try {
+      // @ts-ignore
+      player.volume = volume;
+    } catch {}
     if (autoplay) {
       player.play();
     } else {
@@ -53,6 +84,21 @@ export const VideoPlayer: React.FC<{
       } catch {}
     });
 
+    // Poll simple status to keep progress updated (avoids relying on specific events)
+    if (pollIntervalRef.current !== null) {
+      clearInterval(pollIntervalRef.current);
+    }
+    pollIntervalRef.current = setInterval(() => {
+      try {
+        // @ts-ignore
+        const d = Number(player.duration) || 0;
+        // @ts-ignore
+        const ct = Number(player.currentTime) || 0;
+        if (!Number.isNaN(d)) setDuration(d);
+        if (!Number.isNaN(ct)) setCurrentTime(ct);
+      } catch {}
+    }, 500) as unknown as number;
+
     return () => {
       try {
         subEnd?.remove?.();
@@ -61,8 +107,19 @@ export const VideoPlayer: React.FC<{
       try {
         player.pause();
       } catch {}
+      if (pollIntervalRef.current !== null) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
     };
-  }, [player, autoplay, loop, muted]);
+  }, [player, autoplay, loop, muted, isMuted, volume]);
+
+  // Sincroniza estado local cuando la prop controlada cambia
+  useEffect(() => {
+    if (muted !== undefined) {
+      setIsMuted(!!muted);
+    }
+  }, [muted]);
 
   const onTogglePlay = useCallback(() => {
     if (!player) return;
@@ -78,6 +135,47 @@ export const VideoPlayer: React.FC<{
       }
     } catch {}
   }, [player]);
+
+  const onSeekToRatio = useCallback(
+    (ratio: number) => {
+      if (!player) return;
+      try {
+        const clamped = Math.max(0, Math.min(1, ratio));
+        const target = clamped * (duration || 0);
+        // @ts-ignore
+        player.currentTime = target;
+        setCurrentTime(target);
+      } catch {}
+    },
+    [player, duration]
+  );
+
+  const onProgressBarPress = useCallback(
+    (e: any) => {
+      try {
+        const width = progressWidthRef.current || 1;
+        const x = e?.nativeEvent?.locationX ?? 0;
+        onSeekToRatio(x / width);
+      } catch {}
+    },
+    [onSeekToRatio]
+  );
+
+  const onProgressLayout = useCallback((e: any) => {
+    try {
+      progressWidthRef.current = e?.nativeEvent?.layout?.width ?? 0;
+    } catch {}
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    try {
+      if (!player) return;
+      const next = !isMuted;
+      player.muted = next;
+      setIsMuted(next);
+      onMuteChange?.(next);
+    } catch {}
+  }, [player, isMuted, onMuteChange]);
 
   return (
     <View style={[styles.container, { width, height }]}>
@@ -104,6 +202,46 @@ export const VideoPlayer: React.FC<{
           >
             <Ionicons name="pause" size={36} color="#FFFFFF" />
           </View>
+        </View>
+      ) : null}
+
+      {showControls ? (
+        <View pointerEvents="box-none" style={styles.controlsWrapper}>
+          {showProgress ? (
+            <Pressable
+              onPress={onProgressBarPress}
+              onLayout={onProgressLayout}
+              style={styles.progressContainer}
+            >
+              <View style={styles.progressBackground} />
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    width:
+                      duration > 0
+                        ? `${Math.min(
+                            100,
+                            Math.max(0, (currentTime / duration) * 100)
+                          )}%`
+                        : "0%",
+                  },
+                ]}
+              />
+            </Pressable>
+          ) : null}
+
+          {showVolume ? (
+            <View style={[styles.controlsRow, { justifyContent: "flex-end" }]}>
+              <Pressable onPress={toggleMute} style={styles.controlButton}>
+                <Ionicons
+                  name={isMuted ? "volume-mute" : "volume-high"}
+                  size={20}
+                  color="#FFFFFF"
+                />
+              </Pressable>
+            </View>
+          ) : null}
         </View>
       ) : null}
     </View>
