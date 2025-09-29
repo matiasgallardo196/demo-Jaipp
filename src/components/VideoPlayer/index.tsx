@@ -2,7 +2,7 @@ import { styles } from "@/src/components/VideoPlayer/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Animated, Platform, Pressable, View } from "react-native";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -43,6 +43,7 @@ export const VideoPlayer: React.FC<{
   const progressWidthRef = useRef<number>(0);
   const pollIntervalRef = useRef<number | null>(null);
   const controlsTimerRef = useRef<number | null>(null);
+  const controlsOpacity = useRef(new Animated.Value(0)).current;
   const player = useVideoPlayer({ uri, headers: undefined }, (p) => {
     p.loop = false;
     const initialMuted = muted ?? defaultMuted ?? false;
@@ -138,32 +139,50 @@ export const VideoPlayer: React.FC<{
     } catch {}
   }, [player]);
 
+  const animateControlsTo = useCallback(
+    (toValue: number) => {
+      Animated.timing(controlsOpacity, {
+        toValue,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+    },
+    [controlsOpacity]
+  );
+
   const scheduleHideControls = useCallback(() => {
     if (controlsTimerRef.current !== null) {
       clearTimeout(controlsTimerRef.current);
     }
     controlsTimerRef.current = setTimeout(() => {
       setControlsVisible(false);
+      animateControlsTo(0);
       controlsTimerRef.current = null;
     }, 3000) as unknown as number;
-  }, []);
+  }, [animateControlsTo]);
 
   const showControlsTemporarily = useCallback(() => {
     setControlsVisible(true);
+    animateControlsTo(1);
     scheduleHideControls();
-  }, [scheduleHideControls]);
+  }, [animateControlsTo, scheduleHideControls]);
 
   const onToggleControls = useCallback(() => {
     setControlsVisible((prev) => {
       const next = !prev;
-      if (next) scheduleHideControls();
-      else if (controlsTimerRef.current !== null) {
-        clearTimeout(controlsTimerRef.current);
-        controlsTimerRef.current = null;
+      if (next) {
+        animateControlsTo(1);
+        scheduleHideControls();
+      } else {
+        if (controlsTimerRef.current !== null) {
+          clearTimeout(controlsTimerRef.current);
+          controlsTimerRef.current = null;
+        }
+        animateControlsTo(0);
       }
       return next;
     });
-  }, [scheduleHideControls]);
+  }, [animateControlsTo, scheduleHideControls]);
 
   const onSeekToRatio = useCallback(
     (ratio: number) => {
@@ -225,8 +244,11 @@ export const VideoPlayer: React.FC<{
 
       {/* Overlay central de pausa retirado a pedido: se usan solo los controles de la barra */}
 
-      {showControls && controlsVisible ? (
-        <View pointerEvents="box-none" style={styles.controlsWrapper}>
+      {showControls ? (
+        <Animated.View
+          pointerEvents={controlsVisible ? "box-none" : "none"}
+          style={[styles.controlsWrapper, { opacity: controlsOpacity }]}
+        >
           {showProgress ? (
             <Pressable
               onPress={onProgressBarPress}
@@ -276,7 +298,7 @@ export const VideoPlayer: React.FC<{
               </Pressable>
             ) : null}
           </View>
-        </View>
+        </Animated.View>
       ) : null}
     </View>
   );
