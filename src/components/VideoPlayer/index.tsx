@@ -223,18 +223,7 @@ export const VideoPlayer: React.FC<{
 
       <Pressable onPress={onToggleControls} style={styles.overlayPressable} />
 
-      {!isPlaying && isUserPaused ? (
-        <View pointerEvents="none" style={styles.pausedOverlay}>
-          <View
-            style={[
-              styles.pausedIconWrapper,
-              { transform: [{ translateY: -height * 0.1 }] },
-            ]}
-          >
-            <Ionicons name="pause" size={36} color="#FFFFFF" />
-          </View>
-        </View>
-      ) : null}
+      {/* Overlay central de pausa retirado a pedido: se usan solo los controles de la barra */}
 
       {showControls && controlsVisible ? (
         <View pointerEvents="box-none" style={styles.controlsWrapper}>
