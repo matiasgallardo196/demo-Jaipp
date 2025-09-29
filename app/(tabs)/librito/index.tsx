@@ -27,14 +27,16 @@ export default function LibritoScreen() {
           { color: colors.text, textAlign: "center" },
         ]}
       >
-        Pronto habrá novedades aquí.
+        Pronto habrá novedades aquí.{"\n"}Mientras tanto:
       </Text>
       <Button
         mode="contained"
         onPress={() => router.push("/(tabs)/feed")}
         style={{ marginTop: 24, borderRadius: 12 }}
+        buttonColor="#FD3B4A"
+        textColor="#ffffff"
       >
-        Ir al inicio
+        Explorar el Feed
       </Button>
     </View>
   );

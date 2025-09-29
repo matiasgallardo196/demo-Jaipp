@@ -1,6 +1,14 @@
-import { StyleSheet } from "react-native";
+import { ImageStyle, StyleSheet, TextStyle, ViewStyle } from "react-native";
 
-export const styles = StyleSheet.create({
+export const styles = StyleSheet.create<{
+  container: ViewStyle;
+  image: ImageStyle;
+  title: TextStyle;
+  default: TextStyle;
+  caption: TextStyle;
+  tip: TextStyle;
+  link: TextStyle;
+}>({
   container: {
     flex: 1,
     alignItems: "center",
@@ -25,5 +33,12 @@ export const styles = StyleSheet.create({
   caption: {
     marginTop: 8,
     opacity: 0.8,
+  },
+  tip: {
+    marginTop: 4,
+  },
+  link: {
+    color: "#FD3B4A",
+    fontWeight: "600",
   },
 });
