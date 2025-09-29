@@ -2,6 +2,7 @@ import { UploadButton, type PickedVideo } from "@/src/components/UploadButton";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, Image, View } from "react-native";
 import {
@@ -22,7 +23,8 @@ type VideoItem = {
 };
 
 export default function ProfileScreen() {
-  const { user, signOut } = useAuth();
+  const tabBarHeight = useBottomTabBarHeight();
+  const { user } = useAuth();
   const displayName =
     ((user as any)?.user_metadata?.name as string | undefined) ??
     user?.email ??
@@ -264,7 +266,11 @@ export default function ProfileScreen() {
             <VideoPlayer uri={item.url} loop autoplay />
           )}
           ListEmptyComponent={<Text>No hay videos</Text>}
-          contentContainerStyle={{ paddingVertical: 8 }}
+          contentContainerStyle={{
+            paddingVertical: 8,
+            paddingBottom: tabBarHeight + 8,
+          }}
+          scrollIndicatorInsets={{ bottom: tabBarHeight }}
         />
       </View>
     </View>
