@@ -1,4 +1,5 @@
 import { useAuth } from "@/src/context/AuthContext";
+import { styles } from "@/src/styles/components/AppNavbar.styles";
 import { Link, useRouter } from "expo-router";
 import React, { useCallback } from "react";
 import { Image, StatusBar, View } from "react-native";
@@ -25,64 +26,34 @@ export const AppNavbar: React.FC = () => {
   }, [router, signOut]);
 
   return (
-    <SafeAreaView edges={["top"]} style={{ backgroundColor: "#1A1A1A" }}>
+    <SafeAreaView edges={["top"]} style={styles.safeArea}>
       <StatusBar
         barStyle="light-content"
         backgroundColor="#1A1A1A"
         translucent={false} // 👈 asegura que no se vea nada detrás
       />
-      <View
-        style={{
-          height: 56,
-          backgroundColor: "#1A1A1A",
-          paddingHorizontal: 16,
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          //marginTop: 30,
-        }}
-      >
+      <View style={styles.container}>
         <Image
           source={{
             uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/dc32a478fc88f905a7fc0c7a371ac35445e2d90f.png",
           }}
-          style={{ width: 94, height: 76, resizeMode: "contain" as any }}
+          style={styles.logo}
         />
-        <View style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
+        <View style={styles.row}>
           {user ? (
             <>
               {avatarUrl ? (
-                <Image
-                  source={{ uri: avatarUrl }}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
-                    marginRight: 4,
-                  }}
-                />
+                <Image source={{ uri: avatarUrl }} style={styles.avatar} />
               ) : (
-                <View
-                  style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: 16,
-                    marginRight: 4,
-                    backgroundColor: "#FD3B4A",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                    {avatarInitial}
-                  </Text>
+                <View style={styles.avatarFallback}>
+                  <Text style={styles.avatarFallbackText}>{avatarInitial}</Text>
                 </View>
               )}
-              <Text style={{ color: "#FD3B4A" }}>{displayName}</Text>
+              <Text style={styles.displayName}>{displayName}</Text>
               <Button
                 mode="text"
                 onPress={onLogout}
-                labelStyle={{ color: "#FD3B4A" }}
+                labelStyle={styles.logoutLabel}
               >
                 Salir
               </Button>
@@ -91,17 +62,13 @@ export const AppNavbar: React.FC = () => {
             <Link href="/(tabs)/(protected)/signup" asChild>
               <Button
                 mode="text"
-                labelStyle={{ color: "#d32f2f" }}
+                labelStyle={styles.signupLabel}
                 icon={() => (
                   <Image
                     source={{
                       uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Vector.png",
                     }}
-                    style={{
-                      width: 12,
-                      height: 12,
-                      resizeMode: "contain" as any,
-                    }}
+                    style={styles.signupIcon}
                   />
                 )}
               >

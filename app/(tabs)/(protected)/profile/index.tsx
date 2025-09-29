@@ -2,6 +2,7 @@ import { UploadButton, type PickedVideo } from "@/src/components/UploadButton";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
+import { styles } from "@/src/styles/screens/profile.styles";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, Image, View } from "react-native";
@@ -198,28 +199,14 @@ export default function ProfileScreen() {
   }, []);
 
   return (
-    <View style={{ flex: 1 }}>
-      <View style={{ padding: 16, gap: 12 }}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+    <View style={styles.root}>
+      <View style={styles.container}>
+        <View style={styles.row}>
           {avatarUrl ? (
-            <Image
-              source={{ uri: avatarUrl }}
-              style={{ width: 48, height: 48, borderRadius: 24 }}
-            />
+            <Image source={{ uri: avatarUrl }} style={styles.avatar} />
           ) : (
-            <View
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: 24,
-                backgroundColor: "#d32f2f",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                {avatarInitial}
-              </Text>
+            <View style={styles.avatarFallback}>
+              <Text style={styles.avatarFallbackText}>{avatarInitial}</Text>
             </View>
           )}
           <Text variant="titleLarge">
@@ -229,7 +216,7 @@ export default function ProfileScreen() {
           </Text>
         </View>
         <UploadButton onPicked={onPicked} disabled={loading} />
-        {lastError ? <Text style={{ color: "red" }}>{lastError}</Text> : null}
+        {lastError ? <Text style={styles.errorText}>{lastError}</Text> : null}
         <Portal>
           <Dialog visible={askDescription} onDismiss={cancelUpload}>
             <Dialog.Title>Descripción del video</Dialog.Title>
@@ -252,7 +239,7 @@ export default function ProfileScreen() {
             </Dialog.Actions>
           </Dialog>
           <Dialog visible={loading && !askDescription} dismissable={false}>
-            <Dialog.Content style={{ alignItems: "center", gap: 12 }}>
+            <Dialog.Content style={styles.uploadDialogContent}>
               <ActivityIndicator />
               <Text>Subiendo video...</Text>
             </Dialog.Content>
@@ -261,15 +248,15 @@ export default function ProfileScreen() {
         <FlatList
           data={videos}
           keyExtractor={(item) => item.path}
-          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
           renderItem={({ item }) => (
             <VideoPlayer uri={item.url} loop autoplay />
           )}
           ListEmptyComponent={<Text>No hay videos</Text>}
-          contentContainerStyle={{
-            paddingVertical: 8,
-            paddingBottom: tabBarHeight + 8,
-          }}
+          contentContainerStyle={[
+            styles.listContent,
+            { paddingBottom: tabBarHeight + 8 },
+          ]}
           scrollIndicatorInsets={{ bottom: tabBarHeight }}
         />
       </View>

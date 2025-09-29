@@ -1,3 +1,4 @@
+import { styles } from "@/src/styles/components/VideoPlayer.styles";
 import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useCallback, useEffect, useState } from "react";
@@ -80,9 +81,9 @@ export const VideoPlayer: React.FC<{
   }, [player]);
 
   return (
-    <View style={{ width, height, position: "relative" }}>
+    <View style={[styles.container, { width, height }]}>
       <VideoView
-        style={{ width: "100%", height: "100%", backgroundColor: "#000" }}
+        style={styles.video}
         contentFit="cover"
         fullscreenOptions={{ enable: true }}
         {...(Platform.OS === "android"
@@ -92,39 +93,15 @@ export const VideoPlayer: React.FC<{
         player={player}
       />
 
-      <Pressable
-        onPress={onTogglePlay}
-        style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-      />
+      <Pressable onPress={onTogglePlay} style={styles.overlayPressable} />
 
       {!isPlaying && isUserPaused ? (
-        <View
-          pointerEvents="none"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <View pointerEvents="none" style={styles.pausedOverlay}>
           <View
-            style={{
-              backgroundColor: "rgba(0,0,0,0.35)",
-              borderRadius: 48,
-              paddingVertical: 16,
-              paddingHorizontal: 16,
-              borderWidth: 1,
-              borderColor: "rgba(255,255,255,0.25)",
-              shadowColor: "#000",
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              shadowOffset: { width: 0, height: 4 },
-              elevation: 6,
-              transform: [{ translateY: -height * 0.1 }],
-            }}
+            style={[
+              styles.pausedIconWrapper,
+              { transform: [{ translateY: -height * 0.1 }] },
+            ]}
           >
             <Ionicons name="pause" size={36} color="#FFFFFF" />
           </View>

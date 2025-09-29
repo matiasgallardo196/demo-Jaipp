@@ -2,6 +2,7 @@ import { VideoFilterOverlay } from "@/src/components/VideoFilterOverlay";
 import { VideoOverlayCard } from "@/src/components/VideoOverlayCard";
 import { VideoPlayer } from "@/src/components/VideoPlayer";
 import { supabase } from "@/src/lib/supabase";
+import { styles } from "@/src/styles/screens/feed.styles";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
@@ -86,28 +87,19 @@ export default function HomeScreen() {
 
   return (
     <View
-      style={{ flex: 1 }}
+      style={styles.container}
       onLayout={(e) => {
         const h = Math.max(1, Math.round(e.nativeEvent.layout.height));
         if (h !== containerHeight) setContainerHeight(h);
       }}
     >
-      {lastError ? (
-        <Text style={{ color: "red", padding: 8 }}>{lastError}</Text>
-      ) : null}
+      {lastError ? <Text style={styles.errorText}>{lastError}</Text> : null}
 
       <FlatList
         data={videos}
         keyExtractor={(item) => item.path}
         renderItem={({ item, index }) => (
-          <View
-            style={{
-              width,
-              height: snap,
-              backgroundColor: "#000",
-              position: "relative",
-            }}
-          >
+          <View style={[styles.videoItem, { width, height: snap }]}>
             <VideoPlayer
               uri={item.url}
               width={width}
@@ -146,16 +138,9 @@ export default function HomeScreen() {
           offset: snap * index,
           index,
         })}
-        style={{ flex: 1 }}
+        style={styles.list}
         ListEmptyComponent={
-          <View
-            style={{
-              width,
-              height: snap,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
+          <View style={[styles.empty, { width, height: snap }]}>
             <Text>{loading ? "Cargando..." : "No hay videos disponibles"}</Text>
           </View>
         }

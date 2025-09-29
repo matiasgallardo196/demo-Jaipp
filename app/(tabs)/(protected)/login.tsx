@@ -1,4 +1,5 @@
 import { useAuth } from "@/src/context/AuthContext";
+import { styles } from "@/src/styles/screens/login.styles";
 import {
   Link,
   useLocalSearchParams,
@@ -50,11 +51,8 @@ export default function LoginScreen() {
   if (user) return null;
 
   return (
-    <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 12 }}>
-      <Text
-        variant="headlineMedium"
-        style={{ textAlign: "center", marginBottom: 16 }}
-      >
+    <View style={styles.container}>
+      <Text variant="headlineMedium" style={styles.title}>
         Iniciar sesión
       </Text>
       <TextInput
@@ -70,7 +68,7 @@ export default function LoginScreen() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <Button
         mode="contained"
         onPress={onSubmit}

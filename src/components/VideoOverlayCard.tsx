@@ -1,3 +1,4 @@
+import { styles } from "@/src/styles/components/VideoOverlayCard.styles";
 import React from "react";
 import { Image, Text, View } from "react-native";
 
@@ -19,58 +20,23 @@ export function VideoOverlayCard({
   return (
     <View
       pointerEvents="none"
-      style={{
-        position: "absolute",
-        left: 12,
-        right: 12,
-        bottom: 12 + overlayOffset,
-        alignItems: "flex-start",
-      }}
+      style={[styles.container, { bottom: 12 + overlayOffset }]}
     >
-      <View
-        style={{
-          //ckgroundColor: "rgba(0,0,0,0.35)",
-          //orderRadius: 8,
-          paddingVertical: 6,
-          paddingHorizontal: 10,
-          //rderWidth: 1,
-          //rderColor: "rgba(255,255,255,0.2)",
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 8,
-        }}
-      >
+      <View style={styles.row}>
         {creatorAvatarUrl ? (
-          <Image
-            source={{ uri: creatorAvatarUrl }}
-            style={{ width: 128, height: 128, borderRadius: 12 }}
-          />
+          <Image source={{ uri: creatorAvatarUrl }} style={styles.avatar} />
         ) : null}
-        <View style={{ flex: 1 }}>
+        <View style={styles.rowFlex}>
           <Text
             numberOfLines={1}
-            style={{
-              color: "#fff",
-              fontSize: 14,
-              fontWeight: "600",
-              textShadowColor: "rgba(0,0,0,0.4)",
-              textShadowRadius: 4,
-              textShadowOffset: { width: 0, height: 1 },
-              maxWidth: width - 24,
-            }}
+            style={[styles.creatorName, { maxWidth: width - 24 }]}
           >
             {creatorName ? `@${creatorName}` : "Anónimo"}
           </Text>
           {description ? (
             <Text
               numberOfLines={2}
-              style={{
-                color: "#fff",
-                fontSize: 12,
-                opacity: 0.9,
-                marginTop: 2,
-                maxWidth: width - 24,
-              }}
+              style={[styles.description, { maxWidth: width - 24 }]}
             >
               {description}
             </Text>

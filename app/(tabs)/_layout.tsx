@@ -1,3 +1,4 @@
+import { styles } from "@/src/styles/screens/tabs.styles";
 import { Tabs } from "expo-router";
 import React from "react";
 import { Image } from "react-native";
@@ -11,7 +12,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: "#FD3B4A",
         tabBarInactiveTintColor: "#9E9E9E",
         header: () => <AppNavbar />,
-        tabBarStyle: { backgroundColor: "#1A1A1A" },
+        tabBarStyle: styles.tabBar,
         tabBarShowLabel: false,
       }}
     >
@@ -24,7 +25,7 @@ export default function TabLayout() {
               source={{
                 uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Vector%20(1).png",
               }}
-              style={{ width: 20, height: 20, tintColor: color }}
+              style={[styles.icon, { tintColor: color }]}
               resizeMode="contain"
             />
           ),
@@ -41,7 +42,7 @@ export default function TabLayout() {
               source={{
                 uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Group.png",
               }}
-              style={{ width: 20, height: 20, tintColor: color }}
+              style={[styles.icon, { tintColor: color }]}
               resizeMode="contain"
             />
           ),
@@ -56,7 +57,7 @@ export default function TabLayout() {
               source={{
                 uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/vector%20librito.png",
               }}
-              style={{ width: 20, height: 20, tintColor: color }}
+              style={[styles.icon, { tintColor: color }]}
               resizeMode="contain"
             />
           ),
@@ -71,7 +72,7 @@ export default function TabLayout() {
               source={{
                 uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/vector%20profile.png",
               }}
-              style={{ width: 20, height: 20, tintColor: color }}
+              style={[styles.icon, { tintColor: color }]}
               resizeMode="contain"
             />
           ),

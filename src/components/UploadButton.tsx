@@ -1,3 +1,4 @@
+import { styles } from "@/src/styles/components/UploadButton.styles";
 import * as ImagePicker from "expo-image-picker";
 import React, { useCallback } from "react";
 import { Alert, View } from "react-native";
@@ -88,7 +89,7 @@ export const UploadButton: React.FC<{
   }, [onPicked]);
 
   return (
-    <View style={{ gap: 8, flexDirection: "row" }}>
+    <View style={styles.container}>
       <Button mode="contained" onPress={openPicker} disabled={disabled}>
         Elegir video
       </Button>

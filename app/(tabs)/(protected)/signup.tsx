@@ -1,5 +1,6 @@
 import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
+import { styles } from "@/src/styles/screens/signup.styles";
 import * as ImagePicker from "expo-image-picker";
 import { Link, usePathname, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -120,11 +121,8 @@ export default function SignupScreen() {
   if (user) return null;
 
   return (
-    <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 12 }}>
-      <Text
-        variant="headlineMedium"
-        style={{ textAlign: "center", marginBottom: 16 }}
-      >
+    <View style={styles.container}>
+      <Text variant="headlineMedium" style={styles.title}>
         Crear cuenta
       </Text>
       <TextInput
@@ -146,17 +144,17 @@ export default function SignupScreen() {
         onChangeText={setName}
         autoCapitalize="words"
       />
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+      <View style={styles.row}>
         <Button mode="outlined" onPress={pickAvatar} disabled={loading}>
           Elegir avatar
         </Button>
         {avatarUri ? (
-          <Text numberOfLines={1} style={{ flex: 1 }}>
+          <Text numberOfLines={1} style={styles.rowTextFlex}>
             Avatar seleccionado
           </Text>
         ) : null}
       </View>
-      {error ? <Text style={{ color: "red" }}>{error}</Text> : null}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
       <Button
         mode="contained"
         onPress={onSubmit}
