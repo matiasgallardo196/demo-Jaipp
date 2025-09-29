@@ -1,10 +1,11 @@
 import { useAuth } from "@/src/context/AuthContext";
-import { styles } from "@/src/styles/components/AppNavbar.styles";
 import { Link, useRouter } from "expo-router";
 import React, { useCallback } from "react";
 import { Image, StatusBar, View } from "react-native";
 import { Button, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { NAVBAR_ASSETS } from "./navbar.config";
+import { styles } from "./styles";
 
 export const AppNavbar: React.FC = () => {
   const { user, signOut } = useAuth();
@@ -19,9 +20,7 @@ export const AppNavbar: React.FC = () => {
   const avatarInitial = (displayName || "?").charAt(0).toUpperCase();
 
   const onLogout = useCallback(async () => {
-    // Primero navegamos al feed público para salir de cualquier ruta protegida
     router.replace("/(tabs)/feed");
-    // Luego cerramos sesión
     await signOut();
   }, [router, signOut]);
 
@@ -30,15 +29,10 @@ export const AppNavbar: React.FC = () => {
       <StatusBar
         barStyle="light-content"
         backgroundColor="#1A1A1A"
-        translucent={false} // 👈 asegura que no se vea nada detrás
+        translucent={false}
       />
       <View style={styles.container}>
-        <Image
-          source={{
-            uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/dc32a478fc88f905a7fc0c7a371ac35445e2d90f.png",
-          }}
-          style={styles.logo}
-        />
+        <Image source={{ uri: NAVBAR_ASSETS.logoUrl }} style={styles.logo} />
         <View style={styles.row}>
           {user ? (
             <>
@@ -65,9 +59,7 @@ export const AppNavbar: React.FC = () => {
                 labelStyle={styles.signupLabel}
                 icon={() => (
                   <Image
-                    source={{
-                      uri: "https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Vector.png",
-                    }}
+                    source={{ uri: NAVBAR_ASSETS.signupIconUrl }}
                     style={styles.signupIcon}
                   />
                 )}

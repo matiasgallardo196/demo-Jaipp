@@ -1,8 +1,8 @@
-import { styles } from "@/src/styles/components/UploadButton.styles";
 import * as ImagePicker from "expo-image-picker";
 import React, { useCallback } from "react";
 import { Alert, View } from "react-native";
 import { Button } from "react-native-paper";
+import { styles } from "./styles";
 
 export type PickedVideo = {
   uri: string;
@@ -15,7 +15,6 @@ export const UploadButton: React.FC<{
   disabled?: boolean;
 }> = ({ onPicked, disabled }) => {
   const openPicker = useCallback(async () => {
-    // Pedir permiso explícitamente para Android 13+ y iOS
     const current = await ImagePicker.getMediaLibraryPermissionsAsync();
     if (current.status !== "granted") {
       const req = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -28,13 +27,11 @@ export const UploadButton: React.FC<{
       }
     }
 
-    // Intentar API nueva primero; si no está disponible, no pasar mediaTypes para evitar warning
     const newMediaType = (ImagePicker as any)?.MediaType?.video;
     const options: any = {
       allowsEditing: false,
       quality: 1,
     };
-    // Si existe la API nueva, usamos solo videos; si no, caemos al fallback deprecado
     options.mediaTypes = newMediaType
       ? [newMediaType]
       : (ImagePicker as any).MediaTypeOptions?.Videos;
@@ -52,7 +49,6 @@ export const UploadButton: React.FC<{
   }, [onPicked]);
 
   const openCamera = useCallback(async () => {
-    // Permiso de cámara
     const current = await ImagePicker.getCameraPermissionsAsync();
     if (current.status !== "granted") {
       const req = await ImagePicker.requestCameraPermissionsAsync();

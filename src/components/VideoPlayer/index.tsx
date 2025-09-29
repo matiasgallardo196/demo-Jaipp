@@ -1,8 +1,8 @@
-import { styles } from "@/src/styles/components/VideoPlayer.styles";
 import { Ionicons } from "@expo/vector-icons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import React, { useCallback, useEffect, useState } from "react";
 import { Platform, Pressable, View } from "react-native";
+import { styles } from "./styles";
 
 export const VideoPlayer: React.FC<{
   uri: string;
@@ -11,7 +11,6 @@ export const VideoPlayer: React.FC<{
   autoplay?: boolean;
   loop?: boolean;
   muted?: boolean;
-  /** El componente ya no maneja overlays ni filtros visuales */
 }> = ({
   uri,
   width = 320,

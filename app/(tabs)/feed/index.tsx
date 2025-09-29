@@ -7,6 +7,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import { Text } from "react-native-paper";
+import { FEED_ASSETS } from "./feed.assets";
 
 type PublicVideoItem = {
   path: string;
@@ -109,7 +110,7 @@ export default function HomeScreen() {
             />
 
             <VideoFilterOverlay
-              uri="https://bcnhjznvtcgxloyoeqyl.supabase.co/storage/v1/object/public/assets/Rectangle%209.png"
+              uri={FEED_ASSETS.filterOverlay}
               resizeMode="cover"
             />
 
