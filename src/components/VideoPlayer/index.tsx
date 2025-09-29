@@ -14,7 +14,6 @@ export const VideoPlayer: React.FC<{
   showControls?: boolean;
   showProgress?: boolean;
   showVolume?: boolean; // controla visibilidad del botón de mute
-  initialVolume?: number; // 0..1
   defaultMuted?: boolean;
   onMuteChange?: (isMuted: boolean) => void;
 }> = ({
@@ -27,15 +26,12 @@ export const VideoPlayer: React.FC<{
   showControls = true,
   showProgress = true,
   showVolume = true,
-  initialVolume = 1,
   defaultMuted,
   onMuteChange,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-  const [isUserPaused, setIsUserPaused] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [duration, setDuration] = useState<number>(0);
-  const [volume, setVolume] = useState<number>(initialVolume);
   const [isMuted, setIsMuted] = useState<boolean>(
     muted ?? defaultMuted ?? false
   );
@@ -49,10 +45,6 @@ export const VideoPlayer: React.FC<{
     const initialMuted = muted ?? defaultMuted ?? false;
     p.muted = initialMuted;
     setIsMuted(initialMuted);
-    try {
-      // @ts-ignore: volume property exists on player in expo-video
-      p.volume = initialVolume;
-    } catch {}
   });
 
   useEffect(() => {
@@ -60,10 +52,6 @@ export const VideoPlayer: React.FC<{
     player.loop = false;
     const effectiveMuted = muted !== undefined ? muted : isMuted;
     player.muted = effectiveMuted;
-    try {
-      // @ts-ignore
-      player.volume = volume;
-    } catch {}
     if (autoplay) {
       player.play();
     } else {
@@ -83,7 +71,6 @@ export const VideoPlayer: React.FC<{
       try {
         const playingNow = !!e?.isPlaying;
         setIsPlaying(playingNow);
-        if (playingNow) setIsUserPaused(false);
       } catch {}
     });
 
@@ -115,7 +102,7 @@ export const VideoPlayer: React.FC<{
         pollIntervalRef.current = null;
       }
     };
-  }, [player, autoplay, loop, muted, isMuted, volume]);
+  }, [player, autoplay, loop, muted, isMuted]);
 
   // Sincroniza estado local cuando la prop controlada cambia
   useEffect(() => {
@@ -130,11 +117,9 @@ export const VideoPlayer: React.FC<{
       if (player.playing) {
         player.pause();
         setIsPlaying(false);
-        setIsUserPaused(true);
       } else {
         player.play();
         setIsPlaying(true);
-        setIsUserPaused(false);
       }
     } catch {}
   }, [player]);
