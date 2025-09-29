@@ -4,6 +4,7 @@ import { useAuth } from "@/src/context/AuthContext";
 import { supabase } from "@/src/lib/supabase";
 import { styles } from "@/src/styles/screens/profile.styles";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useIsFocused } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, Image, View } from "react-native";
 import {
@@ -25,6 +26,7 @@ type VideoItem = {
 
 export default function ProfileScreen() {
   const tabBarHeight = useBottomTabBarHeight();
+  const isFocused = useIsFocused();
   const { user } = useAuth();
   const displayName =
     ((user as any)?.user_metadata?.name as string | undefined) ??
@@ -250,7 +252,7 @@ export default function ProfileScreen() {
           keyExtractor={(item) => item.path}
           ItemSeparatorComponent={() => <View style={styles.itemSeparator} />}
           renderItem={({ item }) => (
-            <VideoPlayer uri={item.url} loop autoplay />
+            <VideoPlayer uri={item.url} loop autoplay={isFocused} />
           )}
           ListEmptyComponent={<Text>No hay videos</Text>}
           contentContainerStyle={[
