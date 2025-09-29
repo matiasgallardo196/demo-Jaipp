@@ -6,6 +6,12 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  image: {
+    width: 160,
+    height: 160,
+    marginBottom: 16,
+    opacity: 0.9,
+  },
   title: {
     fontSize: 32,
     fontWeight: "bold",
