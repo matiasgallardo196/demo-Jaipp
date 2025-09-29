@@ -39,8 +39,10 @@ export const VideoPlayer: React.FC<{
   const [isMuted, setIsMuted] = useState<boolean>(
     muted ?? defaultMuted ?? false
   );
+  const [controlsVisible, setControlsVisible] = useState<boolean>(false);
   const progressWidthRef = useRef<number>(0);
   const pollIntervalRef = useRef<number | null>(null);
+  const controlsTimerRef = useRef<number | null>(null);
   const player = useVideoPlayer({ uri, headers: undefined }, (p) => {
     p.loop = false;
     const initialMuted = muted ?? defaultMuted ?? false;
@@ -136,6 +138,33 @@ export const VideoPlayer: React.FC<{
     } catch {}
   }, [player]);
 
+  const scheduleHideControls = useCallback(() => {
+    if (controlsTimerRef.current !== null) {
+      clearTimeout(controlsTimerRef.current);
+    }
+    controlsTimerRef.current = setTimeout(() => {
+      setControlsVisible(false);
+      controlsTimerRef.current = null;
+    }, 3000) as unknown as number;
+  }, []);
+
+  const showControlsTemporarily = useCallback(() => {
+    setControlsVisible(true);
+    scheduleHideControls();
+  }, [scheduleHideControls]);
+
+  const onToggleControls = useCallback(() => {
+    setControlsVisible((prev) => {
+      const next = !prev;
+      if (next) scheduleHideControls();
+      else if (controlsTimerRef.current !== null) {
+        clearTimeout(controlsTimerRef.current);
+        controlsTimerRef.current = null;
+      }
+      return next;
+    });
+  }, [scheduleHideControls]);
+
   const onSeekToRatio = useCallback(
     (ratio: number) => {
       if (!player) return;
@@ -156,9 +185,10 @@ export const VideoPlayer: React.FC<{
         const width = progressWidthRef.current || 1;
         const x = e?.nativeEvent?.locationX ?? 0;
         onSeekToRatio(x / width);
+        showControlsTemporarily();
       } catch {}
     },
-    [onSeekToRatio]
+    [onSeekToRatio, showControlsTemporarily]
   );
 
   const onProgressLayout = useCallback((e: any) => {
@@ -174,8 +204,9 @@ export const VideoPlayer: React.FC<{
       player.muted = next;
       setIsMuted(next);
       onMuteChange?.(next);
+      showControlsTemporarily();
     } catch {}
-  }, [player, isMuted, onMuteChange]);
+  }, [player, isMuted, onMuteChange, showControlsTemporarily]);
 
   return (
     <View style={[styles.container, { width, height }]}>
@@ -190,7 +221,7 @@ export const VideoPlayer: React.FC<{
         player={player}
       />
 
-      <Pressable onPress={onTogglePlay} style={styles.overlayPressable} />
+      <Pressable onPress={onToggleControls} style={styles.overlayPressable} />
 
       {!isPlaying && isUserPaused ? (
         <View pointerEvents="none" style={styles.pausedOverlay}>
@@ -205,7 +236,7 @@ export const VideoPlayer: React.FC<{
         </View>
       ) : null}
 
-      {showControls ? (
+      {showControls && controlsVisible ? (
         <View pointerEvents="box-none" style={styles.controlsWrapper}>
           {showProgress ? (
             <Pressable
@@ -231,8 +262,22 @@ export const VideoPlayer: React.FC<{
             </Pressable>
           ) : null}
 
-          {showVolume ? (
-            <View style={[styles.controlsRow, { justifyContent: "flex-end" }]}>
+          <View style={styles.controlsRow}>
+            <Pressable
+              onPress={() => {
+                onTogglePlay();
+                showControlsTemporarily();
+              }}
+              style={styles.controlButton}
+            >
+              <Ionicons
+                name={isPlaying ? "pause" : "play"}
+                size={22}
+                color="#FFFFFF"
+              />
+            </Pressable>
+
+            {showVolume ? (
               <Pressable onPress={toggleMute} style={styles.controlButton}>
                 <Ionicons
                   name={isMuted ? "volume-mute" : "volume-high"}
@@ -240,8 +285,8 @@ export const VideoPlayer: React.FC<{
                   color="#FFFFFF"
                 />
               </Pressable>
-            </View>
-          ) : null}
+            ) : null}
+          </View>
         </View>
       ) : null}
     </View>

@@ -47,6 +47,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingBottom: 10,
     paddingTop: 6,
+    backgroundColor: "rgba(0,0,0,0.15)",
   },
   progressContainer: {
     height: 6,
@@ -73,6 +74,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 8,
   },
   controlButton: {
     backgroundColor: "rgba(0,0,0,0.35)",
