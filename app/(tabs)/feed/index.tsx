@@ -5,6 +5,7 @@ import { FEED_ASSETS } from "@/src/config/feed.assets";
 import { supabase } from "@/src/lib/supabase";
 import { styles } from "@/src/styles/screens/feed.styles";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { useIsFocused } from "@react-navigation/native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, useWindowDimensions, View } from "react-native";
 import { Text } from "react-native-paper";
@@ -20,6 +21,7 @@ type PublicVideoItem = {
 export default function HomeScreen() {
   const { width, height: windowHeight } = useWindowDimensions();
   const tabBarHeight = useBottomTabBarHeight() || 0;
+  const isFocused = useIsFocused();
 
   // El header (navbar) se renderiza desde Tabs, así que solo restamos tabBar
   const availableHeight = Math.max(0, windowHeight - tabBarHeight);
@@ -105,7 +107,7 @@ export default function HomeScreen() {
               uri={item.url}
               width={width}
               height={snap}
-              autoplay={index === currentIndex}
+              autoplay={isFocused && index === currentIndex}
               loop
             />
 
