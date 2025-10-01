@@ -16,9 +16,15 @@ export const UploadButton: React.FC<{
 }> = ({ onPicked, disabled }) => {
   const openPicker = useCallback(async () => {
     const current = await ImagePicker.getMediaLibraryPermissionsAsync();
-    if (current.status !== "granted") {
+    const hasAccess =
+      current.status === "granted" ||
+      (current as any)?.accessPrivileges === "limited";
+    if (!hasAccess) {
       const req = await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (req.status !== "granted") {
+      const hasAccessAfterRequest =
+        req.status === "granted" ||
+        (req as any)?.accessPrivileges === "limited";
+      if (!hasAccessAfterRequest) {
         Alert.alert(
           "Permiso requerido",
           "Necesitamos acceso a la galería para seleccionar videos."
